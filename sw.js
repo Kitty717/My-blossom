@@ -1,32 +1,54 @@
-const CACHE_NAME = 'blossom-business-v1';
-const urlsToCache = [
-  '/My-blossom/',
-  '/My-blossom/index.html',
-  '/My-blossom/manifest.json',
-  '/My-blossom/icon-192.png',
-  '/My-blossom/icon-512.png'
+// Service Worker — Blossom Business
+// Bumped cache version to force full reload after modularization
+const CACHE_NAME = 'blossom-biz-v2';
+
+const STATIC_ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './js/data.js',
+  './js/utils.js',
+  './js/finance.js',
+  './js/inventory.js',
+  './js/dashboard.js',
+  './js/shipments.js',
+  './js/customers.js',
+  './js/flora.js',
+  './js/currency.js',
+  './js/invoices.js',
+  './js/calendar.js',
+  './js/notifications.js',
+  './js/expenses.js',
+  './js/supplies.js',
+  './js/collections.js',
+  './js/catalog.js',
+  './js/stockcount.js',
+  './js/bundles.js',
+  './js/settings.js',
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  );
+// Install — cache all assets
+self.addEventListener('install', e => {
   self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+  );
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
+// Activate — delete old caches
+self.addEventListener('activate', e => {
+  e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request).catch(() => caches.match('/My-blossom/'));
-    })
+// Fetch — serve from cache, fall back to network
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
