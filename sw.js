@@ -1,13 +1,8 @@
-// Service Worker — Blossom Business
-// Bumped cache version to force full reload after modularization
-const CACHE_NAME = 'blossom-biz-v2';
-
-const STATIC_ASSETS = [
+const CACHE = 'blossom-biz-v9';
+const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
   './js/data.js',
   './js/utils.js',
   './js/finance.js',
@@ -29,25 +24,22 @@ const STATIC_ASSETS = [
   './js/settings.js',
 ];
 
-// Install — cache all assets
 self.addEventListener('install', e => {
-  self.skipWaiting();
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
   );
 });
 
-// Activate — delete old caches
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
-// Fetch — serve from cache, fall back to network
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
