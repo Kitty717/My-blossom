@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Track Your Order · RA Jemle LB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0e0608;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 0 40px}
+.hero{width:100%;background:linear-gradient(160deg,#1a0d12,#2c1a1f);padding:40px 24px 32px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(192,83,106,0.15),transparent 60%)}
+.logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:white;margin-bottom:4px;position:relative}
+.tagline{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:24px;position:relative}
+.hero-title{font-size:15px;color:rgba(255,255,255,0.7);position:relative}
+.hero-title span{color:#c9900a;font-weight:700}
+
+.wrap{width:100%;max-width:480px;padding:24px 16px}
+
+.search-card{background:#1a0d12;border:1.5px solid rgba(192,83,106,0.2);border-radius:20px;padding:20px;margin-bottom:20px}
+.search-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px}
+.search-row{display:flex;gap:10px}
+.search-inp{flex:1;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 16px;font-size:15px;font-weight:600;color:white;font-family:inherit;outline:none;letter-spacing:1px;text-transform:uppercase}
+.search-inp::placeholder{color:rgba(255,255,255,0.25);text-transform:none;letter-spacing:0;font-weight:400}
+.search-inp:focus{border-color:rgba(192,83,106,0.6)}
+.search-btn{background:linear-gradient(135deg,#c0536a,#a03050);border:none;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:700;color:white;cursor:pointer;font-family:inherit;white-space:nowrap;transition:opacity 0.2s}
+.search-btn:active{opacity:0.8}
+
+.result{display:none}
+.order-card{background:#1a0d12;border:1.5px solid rgba(201,144,10,0.2);border-radius:20px;overflow:hidden;margin-bottom:16px}
+.order-header{background:linear-gradient(135deg,#1a0d12,#2c1a1f);padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.order-num{font-family:'Playfair Display',serif;font-size:20px;color:#c9900a;font-weight:700;margin-bottom:4px}
+.order-date{font-size:12px;color:rgba(255,255,255,0.4)}
+.order-customer{font-size:15px;font-weight:700;color:white;margin-top:8px}
+
+.status-track{padding:20px;display:flex;flex-direction:column;gap:0}
+.status-step{display:flex;gap:14px;align-items:flex-start;position:relative;padding-bottom:20px}
+.status-step:last-child{padding-bottom:0}
+.status-step::before{content:'';position:absolute;left:15px;top:32px;bottom:0;width:2px;background:rgba(255,255,255,0.08)}
+.status-step:last-child::before{display:none}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid rgba(255,255,255,0.1)}
+.step-dot.done{background:linear-gradient(135deg,#4caf7d,#2e7d50);border-color:transparent}
+.step-dot.active{background:linear-gradient(135deg,#c9900a,#a07008);border-color:transparent;box-shadow:0 0 14px rgba(201,144,10,0.4)}
+.step-dot.pending{background:rgba(255,255,255,0.05)}
+.step-info{flex:1;padding-top:4px}
+.step-label{font-size:13px;font-weight:700;color:white}
+.step-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px}
+.step-dot.pending .step-label{color:rgba(255,255,255,0.35)}
+
+.items-section{padding:0 20px 20px}
+.items-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px}
+.item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.item-row:last-child{border-bottom:none}
+.item-photo{width:38px;height:38px;border-radius:8px;object-fit:cover;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.item-name{flex:1;font-size:13px;font-weight:600;color:rgba(255,255,255,0.85)}
+.item-qty{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+.item-price{font-size:13px;font-weight:700;color:#c9900a}
+.total-row{display:flex;justify-content:space-between;padding:14px 20px;background:rgba(201,144,10,0.08);border-top:1px solid rgba(201,144,10,0.15)}
+.total-lbl{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+.total-val{font-size:18px;font-weight:800;color:#c9900a}
+
+.empty-state{text-align:center;padding:40px 20px;color:rgba(255,255,255,0.3)}
+.empty-icon{font-size:48px;margin-bottom:14px}
+.empty-title{font-size:16px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:6px}
+.empty-sub{font-size:13px}
+
+.wa-btn{width:100%;background:linear-gradient(135deg,#25d366,#128c7e);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:white;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="logo">RA Jemle LB</div>
+  <div class="tagline">Wholesale Beauty</div>
+  <div class="hero-title">Track your <span>order</span></div>
+</div>
+
+<div class="wrap">
+  <div class="search-card">
+    <div class="search-label">Enter your order number</div>
+    <div class="search-row">
+      <input class="search-inp" id="order-input" placeholder="e.g. RA-9235" maxlength="10"
+        onkeydown="if(event.key==='Enter') trackOrder()"
+        oninput="this.value=this.value.toUpperCase()">
+      <button class="search-btn" onclick="trackOrder()">Track →</button>
+    </div>
+  </div>
+
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+const FB_DB_URL = 'https://ra-shop-3e01d-default-rtdb.firebaseio.com';
+const SHOP_URL  = 'https://kitty717.github.io/My-blossom/shop.html';
+const WA_NUMBER = ''; // filled from Firebase settings if available
+
+const STATUS_STEPS = {
+  pending:   { index:0, label:'Order Received',    sub:'We received your order and are reviewing it' },
+  confirmed: { index:1, label:'Order Confirmed',   sub:'Your order has been confirmed ✅' },
+  shipped:   { index:2, label:'Shipped',           sub:'Your order is on its way! 3-5 days delivery 🚚' },
+  delivered: { index:3, label:'Delivered',         sub:'Your order has been delivered 🎉' },
+  cancelled: { index:-1,label:'Cancelled',         sub:'This order was cancelled' },
+};
+
+const ALL_STEPS = ['pending','confirmed','shipped','delivered'];
+
+async function trackOrder(){
+  const inp = document.getElementById('order-input');
+  const num = inp.value.trim().toUpperCase();
+  if(!num){ inp.focus(); return; }
+
+  const res = document.getElementById('result');
+  res.style.display = 'block';
+  res.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Searching...</div></div>`;
+
+  try {
+    const controller = new AbortController();
+    setTimeout(()=>controller.abort(), 8000);
+    const r = await fetch(`${FB_DB_URL}/orders/${num}.json`, {signal:controller.signal});
+    if(!r.ok) throw new Error('not found');
+    const order = await r.json();
+    if(!order) throw new Error('not found');
+    renderResult(order);
+  } catch(e){
+    res.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Order not found</div>
+      <div class="empty-sub">Check your order number and try again.<br>Order numbers look like: RA-1234</div>
+    </div>`;
+  }
+}
+
+function renderResult(order){
+  const status = order.status || 'pending';
+  const isCancelled = status === 'cancelled';
+  const currentStep = STATUS_STEPS[status] || STATUS_STEPS.pending;
+  const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const items = order.items || [];
+  const total = order.total || 0;
+
+  // Build status timeline
+  const stepsHtml = isCancelled
+    ? `<div class="status-step">
+        <div class="step-dot active" style="background:linear-gradient(135deg,#e05263,#a03040)">❌</div>
+        <div class="step-info"><div class="step-label">Order Cancelled</div><div class="step-sub">This order has been cancelled</div></div>
+       </div>`
+    : ALL_STEPS.map((s,i)=>{
+        const isDone   = i < currentStep.index;
+        const isActive = i === currentStep.index;
+        const info = STATUS_STEPS[s];
+        const icons = ['📋','✅','🚚','🎉'];
+        return `<div class="status-step">
+          <div class="step-dot ${isDone?'done':isActive?'active':'pending'}">${isDone?'✓':icons[i]}</div>
+          <div class="step-info">
+            <div class="step-label" style="${isActive?'color:white':''}"> ${info.label}</div>
+            <div class="step-sub">${isActive?info.sub:(isDone?'Completed':'Waiting...')}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+  // Build items
+  const itemsHtml = items.map(i=>`
+    <div class="item-row">
+      <div class="item-photo">${i.photo?`<img src="${i.photo}" style="width:100%;height:100%;object-fit:cover">`:(i.emoji||'📦')}</div>
+      <div style="flex:1">
+        <div class="item-name">${i.name||''}${i.variantLabel?' · <span style="font-weight:400;opacity:0.6">'+i.variantLabel+'</span>':''}</div>
+        <div class="item-qty">${i.qtyType==='dozen'?i.qty+' dozen':i.qty+' pc'}</div>
+      </div>
+      <div class="item-price">$${((i.unitPrice||0)*(i.qty||1)).toFixed(2)}</div>
+    </div>`).join('');
+
+  // WhatsApp contact button
+  const waPhone = (order.shopWA || '').replace(/\D/g,'');
+  const waMsg = `Hi! I'm checking on my order #${order.id}`;
+  const waBtnHtml = waPhone
+    ? `<button class="wa-btn" onclick="window.open('https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}','_blank')">💬 Contact Us on WhatsApp</button>`
+    : '';
+
+  document.getElementById('result').innerHTML = `
+    <div class="order-card">
+      <div class="order-header">
+        <div class="order-num">${order.id}</div>
+        <div class="order-date">${date}</div>
+        <div class="order-customer">${order.customerName||'Customer'}</div>
+      </div>
+      <div class="status-track">${stepsHtml}</div>
+      ${items.length?`<div class="items-section"><div class="items-title">Order Items</div>${itemsHtml}</div>
+      <div class="total-row"><span class="total-lbl">Total</span><span class="total-val">$${total.toFixed(2)}</span></div>`:''}
+    </div>
+    ${waBtnHtml}
+  `;
+}
+
+// Check URL params for order number
+const urlParams = new URLSearchParams(window.location.search);
+const urlOrder = urlParams.get('order');
+if(urlOrder){
+  document.getElementById('order-input').value = urlOrder.toUpperCase();
+  trackOrder();
+}
+</script>
+</body>
+</html>
