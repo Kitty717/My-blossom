@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Track Your Order · RA Jemle LB</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f8f4f5;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+
+/* Header */
+.header{width:100%;background:linear-gradient(135deg,#1a0d12 0%,#2c1420 100%);padding:32px 24px 28px;text-align:center;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#c9900a,#e8b84b,#c9900a)}
+.header-logo{font-family:'Playfair Display',serif;font-size:26px;color:white;font-weight:700;margin-bottom:2px}
+.header-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px}
+.header-title{font-size:14px;color:rgba(255,255,255,0.7)}
+.header-title span{color:#e8b84b;font-weight:700}
+
+/* Wrap */
+.wrap{width:100%;max-width:500px;padding:20px 16px 60px}
+
+/* Search */
+.search-box{background:white;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 2px 16px rgba(0,0,0,0.07)}
+.search-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:10px}
+.search-row{display:flex;gap:8px}
+.search-inp{flex:1;background:#f5f0f2;border:1.5px solid #ede5e8;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:700;color:#1a0d12;font-family:inherit;outline:none;letter-spacing:1px;text-transform:uppercase;transition:border 0.2s}
+.search-inp::placeholder{color:#bbb;text-transform:none;letter-spacing:0;font-weight:400}
+.search-inp:focus{border-color:#c0536a}
+.search-btn{background:linear-gradient(135deg,#c0536a,#a03050);border:none;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:opacity 0.2s;white-space:nowrap}
+.search-btn:active{opacity:0.85}
+
+/* Order card */
+.order-card{background:white;border-radius:18px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 16px rgba(0,0,0,0.07)}
+.order-header{background:linear-gradient(135deg,#1a0d12,#2c1420);padding:18px 20px}
+.order-num{font-family:'Playfair Display',serif;font-size:22px;color:#e8b84b;font-weight:700}
+.order-date{font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px}
+.order-name{font-size:16px;font-weight:700;color:white;margin-top:8px}
+.order-addr{font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px}
+
+/* Status steps */
+.steps{padding:20px}
+.step{display:flex;gap:14px;align-items:flex-start;position:relative;padding-bottom:22px}
+.step:last-child{padding-bottom:0}
+.step-line{position:absolute;left:17px;top:36px;bottom:0;width:2px;background:#f0e8ec}
+.step:last-child .step-line{display:none}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2.5px solid #f0e8ec;background:white;transition:all 0.3s}
+.step-dot.done{background:linear-gradient(135deg,#4caf7d,#2e9960);border-color:transparent;color:white;font-size:14px}
+.step-dot.active{background:linear-gradient(135deg,#c9900a,#b07a00);border-color:transparent;color:white;box-shadow:0 4px 14px rgba(201,144,10,0.35)}
+.step-dot.waiting{background:#f8f4f5;border-color:#ede5e8;color:#ccc}
+.step-info{flex:1;padding-top:6px}
+.step-title{font-size:14px;font-weight:700;color:#1a0d12}
+.step-title.waiting{color:#bbb}
+.step-sub{font-size:12px;color:#999;margin-top:2px;line-height:1.5}
+.step-sub.active{color:#c9900a;font-weight:600}
+
+/* Items */
+.items-wrap{border-top:1.5px solid #f5f0f2;padding:16px 20px}
+.items-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-bottom:12px}
+.item-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f8f4f5}
+.item-row:last-child{border:none}
+.item-thumb{width:42px;height:42px;border-radius:10px;object-fit:cover;background:#f5f0f2;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.item-name{font-size:13px;font-weight:600;color:#1a0d12;flex:1}
+.item-variant{font-size:11px;color:#999;margin-top:2px}
+.item-price{font-size:13px;font-weight:700;color:#c9900a}
+
+/* Total */
+.total-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#fdf8f0;border-top:1.5px solid #f5e8c8}
+.total-lbl{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999}
+.total-val{font-size:22px;font-weight:800;color:#c9900a}
+
+/* Cancelled */
+.cancelled-banner{margin:20px;background:#fff0f2;border-radius:12px;padding:16px;text-align:center;border:1.5px solid rgba(192,83,106,0.2)}
+.cancelled-banner .icon{font-size:32px;margin-bottom:8px}
+.cancelled-banner .title{font-size:15px;font-weight:700;color:#c0536a}
+.cancelled-banner .sub{font-size:12px;color:#999;margin-top:4px}
+
+/* Empty */
+.empty{text-align:center;padding:40px 20px;background:white;border-radius:18px;box-shadow:0 2px 16px rgba(0,0,0,0.07)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:700;color:#1a0d12;margin-bottom:6px}
+.empty-sub{font-size:13px;color:#999;line-height:1.6}
+
+/* WA help */
+.wa-help{width:100%;background:linear-gradient(135deg,#25d366,#1da851);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:white;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px;box-shadow:0 4px 14px rgba(37,211,102,0.3)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">RA Jemle LB</div>
+  <div class="header-tag">Wholesale Beauty</div>
+  <div class="header-title">Track your <span>order</span></div>
+</div>
+
+<div class="wrap">
+  <div class="search-box">
+    <div class="search-label">Enter your order number</div>
+    <div class="search-row">
+      <input class="search-inp" id="order-input" placeholder="e.g. RA-9235" maxlength="10"
+        onkeydown="if(event.key==='Enter') trackOrder()"
+        oninput="this.value=this.value.toUpperCase()">
+      <button class="search-btn" onclick="trackOrder()">Track →</button>
+    </div>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const FB_DB_URL = 'https://ra-shop-3e01d-default-rtdb.firebaseio.com';
+const SHOP_WA   = ''; // will be pulled from Firebase settings
+
+const STEPS = [
+  { key:'pending',   icon:'📋', label:'Order Received',  active:'We received your order and are reviewing it 👀',   done:'Order received' },
+  { key:'confirmed', icon:'✅', label:'Order Confirmed', active:'Your order is confirmed! We\'re preparing it 📦',  done:'Order confirmed' },
+  { key:'shipped',   icon:'🚚', label:'Shipped',         active:'Your order is on its way! Delivery in 3–5 days 🚀', done:'Shipped' },
+  { key:'delivered', icon:'🎉', label:'Delivered',       active:'Your order has been delivered! Enjoy 💛',           done:'Delivered' },
+];
+const STATUS_IDX = { pending:0, confirmed:1, shipped:2, delivered:3 };
+
+async function trackOrder(){
+  const val = document.getElementById('order-input').value.trim().toUpperCase();
+  if(!val) return;
+  const res = document.getElementById('result');
+  res.innerHTML = `<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Searching...</div></div>`;
+  try {
+    const r = await fetch(`${FB_DB_URL}/orders/${val}.json`);
+    const order = await r.json();
+    if(!order || !order.id) throw new Error('not found');
+    render(order);
+  } catch(e) {
+    res.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Order not found</div>
+      <div class="empty-sub">Double-check your order number.<br>It looks like <strong>RA-1234</strong></div>
+    </div>`;
+  }
+}
+
+function render(order){
+  const status = order.status || 'pending';
+  const isCancelled = status === 'cancelled';
+  const currentIdx = STATUS_IDX[status] ?? 0;
+  const date = order.createdAt
+    ? new Date(order.createdAt).toLocaleDateString('en',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})
+    : '—';
+  const items = order.items || [];
+  const total = order.total || 0;
+
+  // Steps
+  const stepsHtml = isCancelled
+    ? `<div class="cancelled-banner">
+        <div class="icon">❌</div>
+        <div class="title">Order Cancelled</div>
+        <div class="sub">This order has been cancelled.<br>Contact us if you have questions.</div>
+       </div>`
+    : `<div class="steps">${STEPS.map((s,i)=>{
+        const isDone   = i < currentIdx;
+        const isActive = i === currentIdx;
+        const cls      = isDone?'done':isActive?'active':'waiting';
+        return `<div class="step">
+          <div class="step-line"></div>
+          <div class="step-dot ${cls}">${isDone?'✓':s.icon}</div>
+          <div class="step-info">
+            <div class="step-title ${!isDone&&!isActive?'waiting':''}">${s.label}</div>
+            <div class="step-sub ${isActive?'active':''}">${isActive?s.active:isDone?s.done:'Waiting...'}</div>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+
+  // Items
+  const itemsHtml = items.length ? `
+    <div class="items-wrap">
+      <div class="items-title">Order Items</div>
+      ${items.map(i=>`
+        <div class="item-row">
+          <div class="item-thumb">${i.photo?`<img src="${i.photo}" style="width:100%;height:100%;object-fit:cover">`:(i.emoji||'📦')}</div>
+          <div style="flex:1">
+            <div class="item-name">${i.name||''}</div>
+            ${i.variantLabel?`<div class="item-variant">${i.variantLabel}</div>`:''}
+          </div>
+          <div>
+            <div class="item-price">$${((i.unitPrice||0)*(i.qty||1)).toFixed(2)}</div>
+            <div style="font-size:10px;color:#bbb;text-align:right">${i.qty} ${i.qtyType==='dozen'?'dz':'pc'}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="total-bar">
+      <span class="total-lbl">Total</span>
+      <span class="total-val">$${total.toFixed(2)}</span>
+    </div>` : '';
+
+  // WA button — use shopSettings WA if available
+  const wa = (order.shopWA||SHOP_WA||'').replace(/\D/g,'');
+  const waHtml = wa
+    ? `<button class="wa-help" onclick="window.open('https://wa.me/${wa}','_blank')">💬 Need help? Contact us on WhatsApp</button>`
+    : '';
+
+  document.getElementById('result').innerHTML = `
+    <div class="order-card">
+      <div class="order-header">
+        <div class="order-num">${order.id}</div>
+        <div class="order-date">${date}</div>
+        <div class="order-name">${order.customerName||'Customer'}</div>
+        ${order.address?`<div class="order-addr">📍 ${order.address}</div>`:''}
+      </div>
+      ${stepsHtml}
+      ${itemsHtml}
+    </div>
+    ${waHtml}`;
+}
+
+// Auto-track from URL param
+const p = new URLSearchParams(location.search).get('order');
+if(p){ document.getElementById('order-input').value=p.toUpperCase(); trackOrder(); }
+</script>
+</body>
+</html>
