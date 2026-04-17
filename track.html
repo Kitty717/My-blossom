@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Track Your Order · RA Jemle LB</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:#f8f4f5;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes logoPop{from{transform:scale(0.3);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes stepIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes dotBounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+@keyframes goldPulse{0%,100%{box-shadow:0 4px 14px rgba(201,144,10,0.35)}50%{box-shadow:0 4px 24px rgba(201,144,10,0.6)}}
+@keyframes lineGrow{from{height:0}to{height:100%}}
+@keyframes checkPop{0%{transform:scale(0) rotate(-180deg)}70%{transform:scale(1.2) rotate(10deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes cardSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes trackBtnPop{0%,100%{transform:scale(1)}50%{transform:scale(0.95)}}
+
+/* Header */
+.header{width:100%;background:linear-gradient(135deg,#1a0d12 0%,#2c1420 100%);padding:32px 24px 28px;text-align:center;position:relative;overflow:hidden;animation:slideDown 0.6s cubic-bezier(0.34,1.1,0.64,1) both}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#c9900a,#e8b84b,#c9900a);animation:fadeIn 0.5s ease 0.4s both}
+.header::before{content:'🌸';position:absolute;right:-10px;top:-10px;font-size:80px;opacity:0.05;animation:logoPop 0.8s ease 0.5s both}
+.header-logo{font-family:'Playfair Display',serif;font-size:26px;color:white;font-weight:700;margin-bottom:2px;animation:fadeUp 0.5s ease 0.2s both}
+.header-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;animation:fadeUp 0.5s ease 0.3s both}
+.header-title{font-size:14px;color:rgba(255,255,255,0.7);animation:fadeUp 0.5s ease 0.4s both}
+.header-title span{color:#e8b84b;font-weight:700}
+
+/* Wrap */
+.wrap{width:100%;max-width:500px;padding:20px 16px 60px}
+
+/* Search */
+.search-box{background:white;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 2px 16px rgba(0,0,0,0.07);animation:fadeUp 0.5s cubic-bezier(0.34,1.1,0.64,1) 0.3s both}
+.search-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:10px}
+.search-row{display:flex;gap:8px}
+.search-inp{flex:1;background:#f5f0f2;border:1.5px solid #ede5e8;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:700;color:#1a0d12;font-family:inherit;outline:none;letter-spacing:1px;text-transform:uppercase;transition:border 0.2s,box-shadow 0.2s}
+.search-inp::placeholder{color:#bbb;text-transform:none;letter-spacing:0;font-weight:400}
+.search-inp:focus{border-color:#c9900a;box-shadow:0 0 0 3px rgba(201,144,10,0.12)}
+.search-btn{background:linear-gradient(135deg,#c0536a,#a03050);border:none;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:transform 0.15s,box-shadow 0.15s;white-space:nowrap;box-shadow:0 4px 14px rgba(192,83,106,0.3)}
+.search-btn:active{transform:scale(0.94);animation:trackBtnPop 0.2s ease}
+
+/* Loading dots */
+.loading-dots{display:flex;gap:6px;justify-content:center;padding:40px}
+.loading-dot{width:10px;height:10px;border-radius:50%;background:#c9900a;animation:dotBounce 1.4s ease-in-out infinite}
+.loading-dot:nth-child(1){animation-delay:0s}
+.loading-dot:nth-child(2){animation-delay:0.16s}
+.loading-dot:nth-child(3){animation-delay:0.32s}
+
+/* Shimmer skeleton */
+.shimmer{background:linear-gradient(90deg,#f0e8ec 25%,#fdf5f7 50%,#f0e8ec 75%);background-size:400px 100%;animation:shimmer 1.2s ease-in-out infinite;border-radius:8px}
+
+/* Order card */
+.order-card{background:white;border-radius:18px;overflow:hidden;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,0.1);animation:cardSlideUp 0.5s cubic-bezier(0.34,1.1,0.64,1) both}
+.order-header{background:linear-gradient(135deg,#1a0d12,#2c1420);padding:18px 20px}
+.order-num{font-family:'Playfair Display',serif;font-size:22px;color:#e8b84b;font-weight:700;animation:fadeUp 0.4s ease 0.1s both}
+.order-date{font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;animation:fadeUp 0.4s ease 0.15s both}
+.order-name{font-size:16px;font-weight:700;color:white;margin-top:8px;animation:fadeUp 0.4s ease 0.2s both}
+.order-addr{font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px;animation:fadeUp 0.4s ease 0.25s both}
+
+/* Status steps */
+.steps{padding:20px}
+.step{display:flex;gap:14px;align-items:flex-start;position:relative;padding-bottom:22px;opacity:0;animation:stepIn 0.4s cubic-bezier(0.34,1.1,0.64,1) forwards}
+.step:nth-child(1){animation-delay:0.1s}
+.step:nth-child(2){animation-delay:0.2s}
+.step:nth-child(3){animation-delay:0.3s}
+.step:nth-child(4){animation-delay:0.4s}
+.step:last-child{padding-bottom:0}
+.step-line{position:absolute;left:17px;top:36px;bottom:0;width:2px;background:#f0e8ec;overflow:hidden}
+.step-line-fill{width:100%;background:linear-gradient(180deg,#4caf7d,#2e9960);animation:lineGrow 0.5s ease 0.6s both}
+.step:last-child .step-line{display:none}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2.5px solid #f0e8ec;background:white;transition:all 0.3s}
+.step-dot.done{background:linear-gradient(135deg,#4caf7d,#2e9960);border-color:transparent;color:white;font-size:14px;animation:checkPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+.step-dot.active{background:linear-gradient(135deg,#c9900a,#b07a00);border-color:transparent;color:white;animation:goldPulse 2s ease-in-out infinite}
+.step-dot.waiting{background:#f8f4f5;border-color:#ede5e8;color:#ccc}
+.step-info{flex:1;padding-top:6px}
+.step-title{font-size:14px;font-weight:700;color:#1a0d12}
+.step-title.waiting{color:#bbb}
+.step-sub{font-size:12px;color:#999;margin-top:2px;line-height:1.5}
+.step-sub.active{color:#c9900a;font-weight:600}
+
+/* Items */
+.items-wrap{border-top:1.5px solid #f5f0f2;padding:16px 20px;animation:fadeUp 0.5s ease 0.5s both}
+.items-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-bottom:12px}
+.item-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f8f4f5;animation:fadeUp 0.35s ease both}
+.item-row:nth-child(1){animation-delay:0.55s}
+.item-row:nth-child(2){animation-delay:0.6s}
+.item-row:nth-child(3){animation-delay:0.65s}
+.item-row:last-child{border:none}
+.item-thumb{width:42px;height:42px;border-radius:10px;object-fit:cover;background:#f5f0f2;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.item-name{font-size:13px;font-weight:600;color:#1a0d12;flex:1}
+.item-variant{font-size:11px;color:#999;margin-top:2px}
+.item-price{font-size:13px;font-weight:700;color:#c9900a}
+
+/* Total */
+.total-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#fdf8f0;border-top:1.5px solid #f5e8c8;animation:fadeUp 0.4s ease 0.7s both}
+.total-lbl{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999}
+.total-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#c9900a}
+
+/* Cancelled */
+.cancelled-banner{margin:20px;background:#fff0f2;border-radius:12px;padding:16px;text-align:center;border:1.5px solid rgba(192,83,106,0.2);animation:fadeUp 0.4s ease both}
+.cancelled-banner .icon{font-size:32px;margin-bottom:8px}
+.cancelled-banner .title{font-size:15px;font-weight:700;color:#c0536a}
+.cancelled-banner .sub{font-size:12px;color:#999;margin-top:4px}
+
+/* Empty */
+.empty{text-align:center;padding:40px 20px;background:white;border-radius:18px;box-shadow:0 2px 16px rgba(0,0,0,0.07);animation:cardSlideUp 0.4s cubic-bezier(0.34,1.1,0.64,1) both}
+.empty-icon{font-size:48px;margin-bottom:12px;animation:logoPop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both}
+.empty-title{font-size:16px;font-weight:700;color:#1a0d12;margin-bottom:6px}
+.empty-sub{font-size:13px;color:#999;line-height:1.6}
+
+/* WA help */
+.wa-help{width:100%;background:linear-gradient(135deg,#25d366,#1da851);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:white;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;box-shadow:0 4px 14px rgba(37,211,102,0.3);transition:transform 0.15s,box-shadow 0.15s;animation:fadeUp 0.5s ease 0.8s both}
+.wa-help:active{transform:scale(0.97);box-shadow:0 2px 8px rgba(37,211,102,0.2)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">RA Jemle LB</div>
+  <div class="header-tag">Wholesale Beauty</div>
+  <div class="header-title">Track your <span>order</span></div>
+</div>
+
+<div class="wrap">
+  <div class="search-box">
+    <div class="search-label">Enter your order number</div>
+    <div class="search-row">
+      <input class="search-inp" id="order-input" placeholder="e.g. RA-9235" maxlength="10"
+        onkeydown="if(event.key==='Enter') trackOrder()"
+        oninput="this.value=this.value.toUpperCase()">
+      <button class="search-btn" onclick="trackOrder()">Track →</button>
+    </div>
+  </div>
+  <div id="result"></div>
+</div>
+
+<script>
+const FB_DB_URL = 'https://ra-shop-3e01d-default-rtdb.firebaseio.com';
+const SHOP_WA   = '';
+
+const STEPS = [
+  { key:'pending',   icon:'📋', label:'Order Received',  active:'We received your order and are reviewing it 👀',    done:'Order received' },
+  { key:'confirmed', icon:'✅', label:'Order Confirmed', active:'Your order is confirmed! We\'re preparing it 📦',   done:'Order confirmed' },
+  { key:'shipped',   icon:'🚚', label:'Shipped',         active:'Your order is on its way! Delivery in 3–5 days 🚀', done:'Shipped' },
+  { key:'delivered', icon:'🎉', label:'Delivered',       active:'Your order has been delivered! Enjoy 💛',            done:'Delivered' },
+];
+const STATUS_IDX = { pending:0, confirmed:1, shipped:2, delivered:3 };
+
+async function trackOrder(){
+  const val = document.getElementById('order-input').value.trim().toUpperCase();
+  if(!val) return;
+  const res = document.getElementById('result');
+  // Animated loading
+  res.innerHTML = `<div style="background:white;border-radius:18px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.07);animation:fadeIn 0.3s ease both">
+    <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+    <div style="text-align:center;font-size:13px;color:#bbb;margin-top:-10px">Searching for your order...</div>
+  </div>`;
+  try {
+    const r = await fetch(`${FB_DB_URL}/orders/${val}.json`);
+    const order = await r.json();
+    if(!order || !order.id) throw new Error('not found');
+    render(order);
+  } catch(e) {
+    res.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Order not found</div>
+      <div class="empty-sub">Double-check your order number.<br>It looks like <strong>RA-1234</strong></div>
+    </div>`;
+  }
+}
+
+function render(order){
+  const status = order.status || 'pending';
+  const isCancelled = status === 'cancelled';
+  const currentIdx = STATUS_IDX[status] ?? 0;
+  const date = order.createdAt
+    ? new Date(order.createdAt).toLocaleDateString('en',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})
+    : '—';
+  const items = order.items || [];
+  const total = order.total || 0;
+
+  const stepsHtml = isCancelled
+    ? `<div class="cancelled-banner">
+        <div class="icon">❌</div>
+        <div class="title">Order Cancelled</div>
+        <div class="sub">This order has been cancelled.<br>Contact us if you have questions.</div>
+       </div>`
+    : `<div class="steps">${STEPS.map((s,i)=>{
+        const isDone   = i < currentIdx;
+        const isActive = i === currentIdx;
+        const cls      = isDone?'done':isActive?'active':'waiting';
+        return `<div class="step">
+          <div class="step-line">${isDone?'<div class="step-line-fill"></div>':''}</div>
+          <div class="step-dot ${cls}">${isDone?'✓':s.icon}</div>
+          <div class="step-info">
+            <div class="step-title ${!isDone&&!isActive?'waiting':''}">${s.label}</div>
+            <div class="step-sub ${isActive?'active':''}">${isActive?s.active:isDone?s.done:'Waiting...'}</div>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+
+  const itemsHtml = items.length ? `
+    <div class="items-wrap">
+      <div class="items-title">Order Items</div>
+      ${items.map((i,idx)=>`
+        <div class="item-row" style="animation-delay:${0.55+idx*0.05}s">
+          <div class="item-thumb">${i.photo?`<img src="${i.photo}" style="width:100%;height:100%;object-fit:cover">`:(i.emoji||'📦')}</div>
+          <div style="flex:1">
+            <div class="item-name">${i.name||''}</div>
+            ${i.variantLabel?`<div class="item-variant">${i.variantLabel}</div>`:''}
+            ${i.note?`<div style="font-size:10px;color:#c9900a;margin-top:2px;font-style:italic">📝 "${i.note}"</div>`:''}
+          </div>
+          <div>
+            <div class="item-price">$${((i.unitPrice||0)*(i.qty||1)).toFixed(2)}</div>
+            <div style="font-size:10px;color:#bbb;text-align:right">${i.qty} ${i.qtyType==='dozen'?'dz':'pc'}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="total-bar">
+      <span class="total-lbl">Total</span>
+      <span class="total-val">$${total.toFixed(2)}</span>
+    </div>` : '';
+
+  const wa = (order.shopWA||SHOP_WA||'').replace(/\D/g,'');
+  const waHtml = wa
+    ? `<button class="wa-help" onclick="window.open('https://wa.me/${wa}','_blank')">💬 Need help? Contact us on WhatsApp</button>`
+    : '';
+
+  document.getElementById('result').innerHTML = `
+    <div class="order-card">
+      <div class="order-header">
+        <div class="order-num">${order.id}</div>
+        <div class="order-date">${date}</div>
+        <div class="order-name">${order.customerName||'Customer'}</div>
+        ${order.address?`<div class="order-addr">📍 ${order.address}</div>`:''}
+      </div>
+      ${stepsHtml}
+      ${itemsHtml}
+    </div>
+    ${waHtml}`;
+}
+
+const p = new URLSearchParams(location.search).get('order');
+if(p){ document.getElementById('order-input').value=p.toUpperCase(); trackOrder(); }
+</script>
+</body>
+</html>
