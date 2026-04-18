@@ -547,7 +547,6 @@ function _renderLossLog(fmt2,lossByType,lossTotal){
 }
 
 // ── Flora occasions defined in calendar.js ──
-var FLORA_OCCASIONS = typeof FLORA_OCCASIONS !== 'undefined' ? FLORA_OCCASIONS : [];
 
 // ── Compat stubs (referenced by other files) ──
 function renderFinChart(){ _renderFinChart(); }
