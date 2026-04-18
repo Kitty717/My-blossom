@@ -339,8 +339,8 @@ async function generateMsg(){
   const langNote = {
     en:       'Write in English. Casual and friendly like a WhatsApp message.',
     ar_fusha: 'اكتب بالعربية الفصحى. أسلوب محترم ورسمي.',
-    ar_lebs:  'Write in Lebanese Arabic dialect. Natural, warm, conversational WhatsApp style. Keep it simple and friendly.',
-    mix:      'Write in English only. Friendly, casual and warm like a WhatsApp message. Short and natural.'
+    ar_lebs:  'اكتب بالعامية اللبنانية البحتة. بدون إنجليزي. أسلوب دافئ وطبيعي مثل رسالة واتساب.',
+    mix:      'Write in Lebanese-English mix style. Use casual Lebanese Arabic dialect mixed naturally with English words — the way young Lebanese people actually text. For example: "هلا! just wanted to let you know..." or "تسلمي, the order is ready 🌸". Never use formal MSA Arabic. Keep it warm, short and natural like a real WhatsApp message.'
   };
 
   const parts = [];
@@ -355,13 +355,6 @@ async function generateMsg(){
   btn.disabled = true;
 
   document.getElementById('ai-result-wrap').style.display = 'block';
-  // Save to history
-  try {
-    const hist = JSON.parse(localStorage.getItem('biz_ai_history')||'[]');
-    hist.unshift({ text: finalMsg, type: aiType, lang: aiLang, ts: Date.now() });
-    localStorage.setItem('biz_ai_history', JSON.stringify(hist.slice(0,5)));
-    renderAiHistory();
-  } catch(e){}
   document.getElementById('ai-typing').style.display = 'flex';
   document.getElementById('ai-bubble').style.display = 'none';
 
@@ -377,7 +370,7 @@ async function generateMsg(){
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [
-          { role: 'system', content: `You are a messaging assistant for a Lebanese beauty business owner named ${(BIZ_DEFAULTS&&BIZ_DEFAULTS.ra&&BIZ_DEFAULTS.ra.owner)||'Aya'}. She runs two businesses: RA Warehouse (wholesale beauty) and Flora Gift Shop (retail gifts). Write short, warm, natural WhatsApp messages. When asked to write in Lebanese mix style, use casual Lebanese dialect mixed with English — never formal MSA Arabic. Return only the message text, nothing else.
+          { role: 'system', content: `You are a messaging assistant for a Lebanese beauty business owner named ${(BIZ_DEFAULTS&&BIZ_DEFAULTS.ra&&BIZ_DEFAULTS.ra.owner)||'Aya'}. She runs two businesses: RA Warehouse (wholesale beauty) and Flora Gift Shop (retail gifts). Write short, warm, natural WhatsApp messages. When asked to write in Lebanese mix style, use casual Lebanese dialect (عامية) mixed naturally with English words — exactly how young Lebanese people actually text. Never use formal MSA Arabic. When asked to write in Lebanese Arabic only, use pure Lebanese dialect with no English. Return only the message text, nothing else.
 
 Current business snapshot:
 - Total products: ${products.filter(p=>!isProductInTransit(p)).length}
@@ -398,9 +391,17 @@ Current business snapshot:
     document.getElementById('ai-typing').style.display = 'none';
     document.getElementById('ai-bubble').style.display = 'block';
     if(text){
-      document.getElementById('ai-result').textContent = text.trim();
+      const finalMsg = text.trim();
+      document.getElementById('ai-result').textContent = finalMsg;
       const now = new Date();
       document.getElementById('ai-bubble-time').textContent = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+      // Save to history after we have the actual text
+      try {
+        const hist = JSON.parse(localStorage.getItem('biz_ai_history')||'[]');
+        hist.unshift({ text: finalMsg, type: activeTpl, lang: aiSelectedLang, ts: Date.now() });
+        localStorage.setItem('biz_ai_history', JSON.stringify(hist.slice(0,20)));
+        if(typeof renderAiHistory === 'function') renderAiHistory();
+      } catch(e){}
 
       // Show correct action area
       const singleRow = document.getElementById('ai-wa-single-row');
