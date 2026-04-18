@@ -93,8 +93,8 @@ function renderBundles(){
 }
 
 // ── Manual Bundle ──
-let bundleItems = [];
-let _bndEditId = null;
+var bundleItems = typeof bundleItems !== 'undefined' ? bundleItems : [];
+var _bndEditId = typeof _bndEditId !== 'undefined' ? _bndEditId : null;
 
 function openNewBundle(){
   _bndEditId = null;
@@ -332,10 +332,10 @@ function fulfillBundle(bid){
 // ═══════════════════════════════════════════════════
 // AUTO BUNDLE BUILDER
 // ═══════════════════════════════════════════════════
-let _abOccasion = 'birthday';
-let _abColor = 'pink';
-let _abColorMode = 'match';
-let _abResult = null; // last AI result for swapping
+var _abOccasion = typeof _abOccasion !== 'undefined' ? _abOccasion : 'birthday';
+var _abColor = typeof _abColor !== 'undefined' ? _abColor : 'pink';
+var _abColorMode = typeof _abColorMode !== 'undefined' ? _abColorMode : 'match';
+var _abResult = typeof _abResult !== 'undefined' ? _abResult : null; // last AI result for swapping
 
 function openAutoBundle(){
   const key = localStorage.getItem('groq_key');
@@ -404,23 +404,21 @@ async function runAutoBundle(){
   const key = localStorage.getItem('groq_key');
   if(!key){ showToast('No Groq API key — add it in Settings','err'); return; }
 
-  // Build full inventory snapshot for AI — only Flora products with stock
+  // Build inventory snapshot for AI — only Flora products with stock, max 30
   const invSnapshot = products
     .filter(p=>p.variants.some(v=>p.store==='flora' ? (v.flora||0)>0 : (v.ra||0)>0))
+    .slice(0, 30)
     .map(p=>({
       id: p.id,
       name: p.name,
-      emoji: p.emoji,
       category: p.category||'',
       priceFlora: p.priceFlora||0,
-      cost: p.cost||0,
       variants: p.variants
         .filter(v=>p.store==='flora' ? (v.flora||0)>0 : (v.ra||0)>0)
         .map(v=>({
           id: v.id,
           name: v.name||'Standard',
           shade: v.label||'',
-          size: v.size||'',
           colorHex: v.colorHex||'',
           floraQty: p.store==='flora' ? (v.flora||0) : (v.ra||0)
         }))
@@ -476,7 +474,7 @@ RESPOND ONLY WITH THIS JSON (no markdown, no explanation):
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body: JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:1000,temperature:0.7})
+      body: JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:2000,temperature:0.7})
     });
     const data = await res.json();
     let text = data?.choices?.[0]?.message?.content||'';
@@ -486,7 +484,19 @@ RESPOND ONLY WITH THIS JSON (no markdown, no explanation):
     const jsonEnd = text.lastIndexOf('}');
     if(jsonStart === -1 || jsonEnd === -1) throw new Error('No JSON in response');
     text = text.slice(jsonStart, jsonEnd + 1);
-    const result = JSON.parse(text);
+    // Try to fix truncated JSON by ensuring arrays are closed
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch(parseErr) {
+      // Try to fix truncated JSON
+      let fixed = text;
+      const openBrackets = (fixed.match(/\[/g)||[]).length - (fixed.match(/\]/g)||[]).length;
+      const openBraces = (fixed.match(/\{/g)||[]).length - (fixed.match(/\}/g)||[]).length;
+      for(let i=0;i<openBrackets;i++) fixed += ']';
+      for(let i=0;i<openBraces;i++) fixed += '}';
+      result = JSON.parse(fixed);
+    }
     if(!result.items || !result.items.length) throw new Error('AI returned no items');
     _abResult = {result, budget, pkg, count, occasion: _abOccasion, colorMode: _abColorMode, color: _abColor};
     closeModal('m-auto-bundle');
