@@ -1421,7 +1421,7 @@ async function _bootApp(){
   loadCustomCategories();
   autoExpireRefunds(); // auto-convert expired refunds to losses on every app open
   if(typeof hideSplash === 'function') hideSplash(); // data loaded — dismiss splash
-  setTimeout(checkMorningSummary, 2000); // show morning summary after app loads
+  setTimeout(()=>{ if(typeof checkMorningSummary==='function') checkMorningSummary(); }, 2000); // show morning summary after app loads
   setTimeout(()=>{ if(typeof checkShopOrdersBadge==='function') checkShopOrdersBadge(); }, 3000); // check pending shop orders
 
   // ── DEMO SEED DATA (runs once on first open) ──
