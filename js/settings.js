@@ -1423,6 +1423,7 @@ async function _bootApp(){
   if(typeof hideSplash === 'function') hideSplash(); // data loaded — dismiss splash
   setTimeout(()=>{ if(typeof checkMorningSummary==='function') checkMorningSummary(); }, 2000); // show morning summary after app loads
   setTimeout(()=>{ if(typeof checkShopOrdersBadge==='function') checkShopOrdersBadge(); }, 3000); // check pending shop orders
+  setTimeout(()=>{ if(typeof syncShopCustomers==='function') syncShopCustomers(); }, 4000); // sync shop customers
 
   // ── DEMO SEED DATA (runs once on first open) ──
   if(!localStorage.getItem('biz_seeded_v1')){
