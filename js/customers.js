@@ -4,7 +4,7 @@
 // Depends on: data.js, utils.js, dashboard.js
 // ═══════════════════════════════════════════════════
 
-let custFilter = 'all';
+var custFilter = typeof custFilter !== 'undefined' ? custFilter : 'all';
 // vipSettings / vipSkipped → js/data.js
 
 function renderCustomers(){
