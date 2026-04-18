@@ -640,10 +640,11 @@ function _doSaveInvoice(andShare){
 
   // Sync status to Firebase if this invoice came from shop
   const savedInv = invoices.find(i=>i.id===editId) || invoices[invoices.length-1];
-  if(savedInv?.fromShop && savedInv?.shopOrderId){
+  const shopOrderRef = savedInv?.shopOrderId || savedInv?.fromShopOrder;
+  if(savedInv?.fromShop && shopOrderRef){
     const fbStatus = status==='paid'?'delivered':status==='shipped'?'shipped':status==='cancelled'?'cancelled':status==='confirmed'?'confirmed':'pending';
     const FB_DB_URL = 'https://ra-shop-3e01d-default-rtdb.firebaseio.com';
-    fetch(`${FB_DB_URL}/orders/${savedInv.shopOrderId}/status.json`,{
+    fetch(`${FB_DB_URL}/orders/${shopOrderRef}/status.json`,{
       method:'PUT', headers:{'Content-Type':'application/json'},
       body: JSON.stringify(fbStatus)
     }).catch(()=>{});
@@ -1626,7 +1627,7 @@ async function confirmShopOrder(orderId){
       customerId: cust.id,
       delivery: 0,
       discount: 0,
-      status: 'unpaid',
+      status: 'confirmed',
       paidAmt: 0,
       notes: `Shop order #${orderId}${o.address?' | 📍 '+o.address:''}${o.notes?' | '+o.notes:''}`,
       address: o.address||'',
