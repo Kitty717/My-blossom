@@ -14,14 +14,18 @@ var _todoBulkSelected = new Set();
 
 // ── Flora Occasions ──
 var FLORA_OCCASIONS = [
-  {name:"Valentine's Day",emoji:'💕',month:2,day:14},
-  {name:"Women's Day",emoji:'👑',month:3,day:8},
-  {name:"Mother's Day 🇱🇧",emoji:'🌸',month:3,day:21},
-  {name:"Easter",emoji:'🌷',month:4,day:20},
-  {name:"Lebanese Independence",emoji:'🇱🇧',month:11,day:22},
-  {name:"Christmas",emoji:'🎄',month:12,day:25},
-  {name:"New Year's Eve",emoji:'🎆',month:12,day:31},
-  {name:"New Year's Day",emoji:'🎉',month:1,day:1},
+  {name:"Valentine's Day",       emoji:'💕', month:2,  day:14},
+  {name:"Women's Day",           emoji:'👑', month:3,  day:8},
+  {name:"Mother's Day 🇱🇧",      emoji:'🌸', month:3,  day:21},
+  {name:"Easter",                emoji:'🌷', month:4,  day:20},
+  {name:"Eid Al-Fitr 2026",      emoji:'🌙', month:3,  day:20},
+  {name:"Eid Al-Adha 2026",      emoji:'🐑', month:5,  day:27},
+  {name:"Eid Al-Fitr 2027",      emoji:'🌙', month:3,  day:9},
+  {name:"Eid Al-Adha 2027",      emoji:'🐑', month:5,  day:16},
+  {name:"Lebanese Independence", emoji:'🇱🇧', month:11, day:22},
+  {name:"Christmas",             emoji:'🎄', month:12, day:25},
+  {name:"New Year's Eve",        emoji:'🎆', month:12, day:31},
+  {name:"New Year's Day",        emoji:'🎉', month:1,  day:1},
 ];
 
 function renderOccasionCalendar(){
@@ -31,19 +35,20 @@ function renderOccasionCalendar(){
     let date=new Date(today.getFullYear(),o.month-1,o.day);
     if(date<today) date=new Date(today.getFullYear()+1,o.month-1,o.day);
     return{...o,date,daysLeft:Math.ceil((date-today)/(1000*60*60*24))};
-  }).sort((a,b)=>a.daysLeft-b.daysLeft).slice(0,3);
+  }).filter(o=>o.daysLeft<=14).sort((a,b)=>a.daysLeft-b.daysLeft);
   if(!upcoming.length){el.innerHTML='';return;}
   el.innerHTML=`<div style="background:linear-gradient(135deg,#fdf2f8,#fce7f3);border-radius:18px;padding:16px;border:1.5px solid rgba(232,116,138,0.2);margin-top:14px">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--rose);margin-bottom:12px">🌸 Upcoming Flora Occasions</div>
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--rose);margin-bottom:12px">🌸 Coming Up</div>
     ${upcoming.map(o=>{
-      const u=o.daysLeft<=7,sn=o.daysLeft<=30;
-      const col=u?'var(--red)':sn?'var(--amber)':'var(--rose)';
-      const bg=u?'var(--red-soft)':sn?'var(--amber-soft)':'var(--rose-pale)';
+      const u=o.daysLeft<=3;
+      const col=u?'var(--red)':'var(--rose)';
+      const bg=u?'var(--red-soft)':'var(--rose-pale)';
+      const lbl=o.daysLeft===0?'Today! 🎉':o.daysLeft===1?'Tomorrow!':o.daysLeft+'d away';
       return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:white;border-radius:12px;margin-bottom:8px">
         <div style="font-size:22px">${o.emoji}</div>
         <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--ink)">${o.name}</div>
-        <div style="font-size:11px;color:var(--muted)">${o.date.toLocaleDateString('en',{month:'long',day:'numeric'})}</div></div>
-        <div style="background:${bg};color:${col};border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">${o.daysLeft===0?'Today!':o.daysLeft===1?'Tomorrow!':o.daysLeft+'d'}</div>
+        <div style="font-size:11px;color:var(--muted)">${o.date.toLocaleDateString('en',{weekday:'short',month:'long',day:'numeric'})}</div></div>
+        <div style="background:${bg};color:${col};border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">${lbl}</div>
       </div>`;
     }).join('')}
   </div>`;
