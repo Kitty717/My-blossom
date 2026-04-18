@@ -546,9 +546,8 @@ function _renderLossLog(fmt2,lossByType,lossTotal){
   el.innerHTML=entries||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">No entries</div>';
 }
 
-// ── Flora occasions (defined in calendar.js — stub here for compat) ──
+// ── Flora occasions defined in calendar.js ──
 var FLORA_OCCASIONS = typeof FLORA_OCCASIONS !== 'undefined' ? FLORA_OCCASIONS : [];
-function renderOccasionCalendar(){ /* defined in calendar.js */ }
 
 // ── Compat stubs (referenced by other files) ──
 function renderFinChart(){ _renderFinChart(); }
