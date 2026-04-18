@@ -2,10 +2,10 @@
 // SHOP-MANAGER.JS — Customer Shop Manager
 // ═══════════════════════════════════════════════════
 
-const SHOP_BASE = 'https://rajemlelb.web.app/';
-const FB_DB_URL = 'https://ra-shop-3e01d-default-rtdb.firebaseio.com';
-const SHOP_NAME = 'RA Jemle LB';
-const SHOP_URL  = SHOP_BASE + 'shop.html';
+var SHOP_BASE = typeof SHOP_BASE !== 'undefined' ? SHOP_BASE : 'https://rajemlelb.web.app/';
+var FB_DB_URL  = typeof FB_DB_URL  !== 'undefined' ? FB_DB_URL  : 'https://ra-shop-3e01d-default-rtdb.firebaseio.com';
+var SHOP_NAME  = typeof SHOP_NAME  !== 'undefined' ? SHOP_NAME  : 'RA Jemle LB';
+var SHOP_URL   = SHOP_BASE + 'shop.html';
 
 // ── State ──
 let shopSettings = {
