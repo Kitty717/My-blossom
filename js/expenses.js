@@ -9,7 +9,7 @@
 // ═══════════════════════════════════════════════════
 // expenses / expFilter → js/data.js
 
-const EXP_CATS = {
+var EXP_CATS = typeof EXP_CATS !== 'undefined' ? EXP_CATS : {
   transport:{label:'Transport', icon:'🚗'},
   packaging:{label:'Packaging', icon:'📦'},
   rent:{label:'Rent', icon:'🏠'},
