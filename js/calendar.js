@@ -8,7 +8,9 @@
 // TO-DO
 // ═══════════════════════════════════════════════════
 var _todoPinned = typeof _todoPinned !== 'undefined' ? _todoPinned : false;
-let _todoPrio = 'med';
+var _todoPrio = typeof _todoPrio !== 'undefined' ? _todoPrio : 'med';
+var _todoBulkMode = false;
+var _todoBulkSelected = new Set();
 
 function openAddTodo(){
   _todoPinned = false;
@@ -110,6 +112,53 @@ function addTodo(){
   saveTodos(); saveCalEvents(); renderTodos(); initDashboard();
 }
 
+function todoBulkEnter(){
+  _todoBulkMode = true;
+  _todoBulkSelected = new Set();
+  renderTodos();
+  _updateBulkBar();
+}
+function todoBulkExit(){
+  _todoBulkMode = false;
+  _todoBulkSelected = new Set();
+  renderTodos();
+  const bar = document.getElementById('todo-bulk-bar');
+  if(bar) bar.style.display = 'none';
+}
+function todoBulkToggle(id){
+  if(_todoBulkSelected.has(id)) _todoBulkSelected.delete(id);
+  else _todoBulkSelected.add(id);
+  // Update checkbox UI
+  const cb = document.getElementById('bulk-cb-'+id);
+  if(cb) cb.classList.toggle('checked', _todoBulkSelected.has(id));
+  _updateBulkBar();
+}
+function todoBulkSelectAll(){
+  const visibleIds = [...document.querySelectorAll('[data-id]')].map(el=>el.dataset.id);
+  visibleIds.forEach(id=>_todoBulkSelected.add(id));
+  visibleIds.forEach(id=>{ const cb=document.getElementById('bulk-cb-'+id); if(cb) cb.classList.add('checked'); });
+  _updateBulkBar();
+}
+function _updateBulkBar(){
+  const n = _todoBulkSelected.size;
+  const bar = document.getElementById('todo-bulk-bar');
+  const lbl = document.getElementById('todo-bulk-lbl');
+  if(bar){ bar.style.display = _todoBulkMode ? 'flex' : 'none'; }
+  if(lbl){ lbl.textContent = n > 0 ? `${n} selected` : 'Select tasks'; }
+  const delBtn = document.getElementById('todo-bulk-del');
+  if(delBtn){ delBtn.disabled = n === 0; delBtn.style.opacity = n===0?'0.4':'1'; }
+}
+function todoBulkDelete(){
+  const n = _todoBulkSelected.size;
+  if(!n){ showToast('Select tasks first'); return; }
+  appConfirm('Delete Tasks', `Delete ${n} selected task${n>1?'s':''}?`, '🗑️ Delete', ()=>{
+    todos = todos.filter(t=>!_todoBulkSelected.has(t.id));
+    saveTodos(); renderTodos(); initDashboard();
+    todoBulkExit();
+    showToast(`${n} task${n>1?'s':''} deleted 🗑️`);
+  });
+}
+
 function renderTodos(){
   const today = new Date().toISOString().split('T')[0];
   let list = todos;
@@ -170,34 +219,38 @@ function renderTodos(){
     const rowClass = `todo-row${t.done?' done-row':''}${t.pinned&&!t.done?' pinned-row':''}${isOverdue?' overdue-row':''}`;
     const prioColor = PRIO_COLORS[t.prio]||'#ccc';
 
-    return `<div class="${rowClass}" id="trow-${t.id}" draggable="true" data-id="${t.id}"
-      ondragstart="todoDragStart(event)"
-      ondragover="todoDragOver(event)"
-      ondrop="todoDrop(event)"
-      ondragend="todoDragEnd(event)"
-      ontouchstart="todoTouchStart(event)"
-      ontouchmove="todoTouchMove(event)"
-      ontouchend="todoTouchEnd(event)">
+    return `<div class="${rowClass}" id="trow-${t.id}" draggable="${!_todoBulkMode}" data-id="${t.id}"
+      ondragstart="${_todoBulkMode?'':'"todoDragStart(event)"'}"
+      ondragover="${_todoBulkMode?'':'todoDragOver(event)'}"
+      ondrop="${_todoBulkMode?'':'todoDrop(event)'}"
+      ondragend="${_todoBulkMode?'':'todoDragEnd(event)'}"
+      ontouchstart="${_todoBulkMode?'':'todoTouchStart(event)'}"
+      ontouchmove="${_todoBulkMode?'':'todoTouchMove(event)'}"
+      ontouchend="${_todoBulkMode?'':'todoTouchEnd(event)'}"
+      onclick="${_todoBulkMode?`todoBulkToggle('${t.id}')`:''}" >
       <div class="prio-bar" style="background:${prioColor}"></div>
-      <div class="todo-cb${t.done?' checked':''}" onclick="toggleTodo('${t.id}')">${t.done?'✓':''}</div>
+      ${_todoBulkMode
+        ? `<div class="todo-cb${_todoBulkSelected.has(t.id)?' checked':''}" id="bulk-cb-${t.id}">✓</div>`
+        : `<div class="todo-cb${t.done?' checked':''}" onclick="event.stopPropagation();toggleTodo('${t.id}')">${t.done?'✓':''}</div>`
+      }
       <div class="todo-body">
         <div class="todo-text${t.done?' done':''}">${t.text}</div>
         ${(dueHtml||linkHtml) ? `<div class="todo-meta">${dueHtml}${linkHtml}</div>` : ''}
       </div>
-      <div class="todo-actions">
-        <button class="todo-pin-btn${t.pinned?' active':''}" onclick="pinTodo('${t.id}')" title="Pin">📌</button>
-        ${t.due && !t.done ? `<button class="todo-pin-btn" onclick="quickRemindFromTodo('${t.id}')" title="Set reminder" style="font-size:13px">🔔</button>` : ''}
-        <button class="todo-del-btn" onclick="deleteTodo('${t.id}')" title="Delete">✕</button>
+      ${!_todoBulkMode ? `<div class="todo-actions">
+        <button class="todo-pin-btn${t.pinned?' active':''}" onclick="event.stopPropagation();pinTodo('${t.id}')" title="Pin">📌</button>
+        ${t.due && !t.done ? `<button class="todo-pin-btn" onclick="event.stopPropagation();quickRemindFromTodo('${t.id}')" title="Set reminder" style="font-size:13px">🔔</button>` : ''}
+        <button class="todo-del-btn" onclick="event.stopPropagation();deleteTodo('${t.id}')" title="Delete">✕</button>
         <div class="todo-drag-handle" title="Drag to reorder">≡</div>
-      </div>
+      </div>` : ''}
     </div>`;
   }).join('');
   initTodoDrag();
 }
 
 // ── Drag-to-reorder (desktop + touch) ──
-let _dragId = null, _dragEl = null;
-let _touchDragId = null, _touchClone = null, _touchStartY = 0;
+var _dragId = typeof _dragId !== 'undefined' ? _dragId : null, _dragEl = null;
+var _touchDragId = typeof _touchDragId !== 'undefined' ? _touchDragId : null, _touchClone = null, _touchStartY = 0;
 
 function todoDragStart(e){
   _dragId = e.currentTarget.dataset.id;
@@ -363,9 +416,9 @@ function quickRemindFromTodo(id){
 // ═══════════════════════════════════════════════════
 // CALENDAR
 // ═══════════════════════════════════════════════════
-let calFilter = 'all';
-let calSelectedDate = null;
-let calGridVisible = true;
+var calFilter = typeof calFilter !== 'undefined' ? calFilter : 'all';
+var calSelectedDate = typeof calSelectedDate !== 'undefined' ? calSelectedDate : null;
+var calGridVisible = typeof calGridVisible !== 'undefined' ? calGridVisible : true;
 
 function toggleCalGrid(){
   calGridVisible = !calGridVisible;
