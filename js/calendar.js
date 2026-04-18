@@ -13,7 +13,7 @@ var _todoBulkMode = false;
 var _todoBulkSelected = new Set();
 
 // ── Flora Occasions ──
-var FLORA_OCCASIONS = typeof FLORA_OCCASIONS !== 'undefined' ? FLORA_OCCASIONS : [
+var FLORA_OCCASIONS = [
   {name:"Valentine's Day",emoji:'💕',month:2,day:14},
   {name:"Women's Day",emoji:'👑',month:3,day:8},
   {name:"Mother's Day 🇱🇧",emoji:'🌸',month:3,day:21},
