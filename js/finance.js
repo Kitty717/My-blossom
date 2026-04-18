@@ -2,8 +2,8 @@
 // FINANCE.JS — Full rebuild with new design
 // ═══════════════════════════════════════════════════
 
-let _ppView = 'ra';
-let _finOpen = new Set();
+if(typeof _finOpen === 'undefined') var _finOpen = new Set();
+if(typeof _ppView === 'undefined') var _ppView = 'ra';
 
 // ── Controls ──
 function setFinCostBy(by){
