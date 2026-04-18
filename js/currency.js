@@ -4,7 +4,7 @@
 // Depends on: data.js, utils.js
 // ═══════════════════════════════════════════════════
 
-const CUR_DEFS = [
+var CUR_DEFS = typeof CUR_DEFS !== 'undefined' ? CUR_DEFS : [
   { code:'USD', name:'US Dollar',        flag:'🇺🇸', defaultRate:1,       isBase:true  },
   { code:'LBP', name:'Lebanese Pound',   flag:'🇱🇧', defaultRate:89500               },
   { code:'CNY', name:'Chinese Yuan',     flag:'🇨🇳', defaultRate:7.25                },
