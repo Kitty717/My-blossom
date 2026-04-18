@@ -155,3 +155,52 @@ function openCustomerWhatsApp(phone){
   if(!wa){ showToast('Invalid phone number','err'); return; }
   window.open('https://wa.me/'+wa, '_blank');
 }
+
+// ═══════════════════════════════════════════════════
+// COMPATIBILITY STUBS
+// Functions that were removed or live elsewhere but
+// may still be referenced from HTML or other JS files
+// ═══════════════════════════════════════════════════
+
+function getStoreWA(store){
+  if(typeof BIZ_DEFAULTS === 'undefined') return '';
+  const p = BIZ_DEFAULTS[store] || BIZ_DEFAULTS.ra;
+  return (p.wa||'').replace(/\D/g,'');
+}
+
+function showLowStockThresholdPicker(){
+  const current = parseInt(localStorage.getItem('biz_lowstock_threshold')||'10');
+  const ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(44,26,31,0.5);z-index:9000;display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML=`<div style="background:var(--cream);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px;font-family:'DM Sans',sans-serif">
+    <div style="width:36px;height:4px;background:rgba(26,10,16,0.12);border-radius:4px;margin:0 auto 18px"></div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px">⚠️ Low Stock Threshold</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Show "Low" badge when stock drops below this number</div>
+    <input id="lst-inp" type="number" min="1" max="999" value="${current}" style="width:100%;padding:12px;border:1.5px solid rgba(201,144,10,0.3);border-radius:12px;font-family:inherit;font-size:18px;font-weight:700;text-align:center;color:var(--ink);outline:none;margin-bottom:14px">
+    <div style="display:flex;gap:10px">
+      <button onclick="this.closest('div').parentElement.remove()" style="flex:1;padding:12px;background:var(--grey);border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">Cancel</button>
+      <button onclick="saveLowStockThreshold(document.getElementById('lst-inp').value);this.closest('div').parentElement.remove()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--rose),var(--brand));border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:white">Save</button>
+    </div>
+  </div>`;
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  document.body.appendChild(ov);
+  setTimeout(()=>document.getElementById('lst-inp')?.focus(),100);
+}
+
+function saveLowStockThreshold(val){
+  const n = parseInt(val)||10;
+  localStorage.setItem('biz_lowstock_threshold', n);
+  if(typeof alertThresholds!=='undefined') alertThresholds.lowStock = n;
+  showToast('Low stock threshold set to '+n+' ✅');
+  if(typeof rebuildInvTabs==='function') rebuildInvTabs();
+  if(typeof renderInventory==='function') renderInventory();
+}
+
+function checkMorningSummary(){ /* removed — no-op */ }
+function goToReorderTab(){ if(typeof showPage==='function'){showPage('products');setNav('products');} }
+function renderReorderView(){ /* removed — no-op */ }
+function dismissReorder(){ /* removed — no-op */ }
+function snoozeReorder(){ /* removed — no-op */ }
+function renderCashFlow(){ /* moved to finance.js — no-op */ }
+function renderProfitPerShipment(){ /* moved to finance.js — no-op */ }
+function renderCapitalRecoveryBanner(){ /* moved to finance.js — no-op */ }
