@@ -48,7 +48,7 @@ let finStore  = 'all';
 let finCostBy = 'eta';
 let finCustomFrom = '';
 let finCustomTo = '';
-const _finOpen = new Set();
+var _finOpen = typeof _finOpen !== 'undefined' ? _finOpen : new Set();
 
 // ── Time helpers ──
 function getNow(){ return new Date(); }
