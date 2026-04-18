@@ -8,7 +8,7 @@ var SHOP_NAME  = typeof SHOP_NAME  !== 'undefined' ? SHOP_NAME  : 'RA Jemle LB';
 var SHOP_URL   = SHOP_BASE + 'shop.html';
 
 // ── State ──
-let shopSettings = {
+var shopSettings = typeof shopSettings !== 'undefined' ? shopSettings : {
   eyebrow:    'RA Jemle LB · Wholesale Beauty',
   title:      'Our Collection',
   heroSub:    'Pick your favourites — by piece or by dozen',
@@ -21,10 +21,10 @@ let shopSettings = {
   waTemplate: 'Hi! I just placed order #{orderNum}.\nName: {name}\nItems:\n{items}\nTotal: {total}',
   lastPublished: null,
 };
-let _smTab = 'overview'; // overview | orders | visibility | settings | design
-let _smOrdersCache = null;
-let _smVisSearch = '';
-let _smVisCat = 'all';
+var _smTab = typeof _smTab !== 'undefined' ? _smTab : 'overview'; // overview | orders | visibility | settings | design
+var _smOrdersCache = typeof _smOrdersCache !== 'undefined' ? _smOrdersCache : null;
+var _smVisSearch = typeof _smVisSearch !== 'undefined' ? _smVisSearch : '';
+var _smVisCat = typeof _smVisCat !== 'undefined' ? _smVisCat : 'all';
 
 // ── Check pending orders and show badge ──
 async function checkShopOrdersBadge(){
@@ -249,7 +249,7 @@ async function smLoadOrders(){
   }
 }
 
-let _smExpandedOrders = new Set();
+var _smExpandedOrders = typeof _smExpandedOrders !== 'undefined' ? _smExpandedOrders : new Set();
 
 function smToggleOrder(id){
   if(_smExpandedOrders.has(id)) _smExpandedOrders.delete(id);
@@ -402,7 +402,7 @@ async function smHardDeleteOrder(orderId){
 }
 
 
-const TRACK_URL = 'https://rajemlelb.web.app/track.html';
+var TRACK_URL = typeof TRACK_URL !== 'undefined' ? TRACK_URL : 'https://rajemlelb.web.app/track.html';
 async function smUpdateOrderStatus(orderId, status){
   try {
     const controller = new AbortController();
@@ -929,3 +929,67 @@ function copyShopLink(){ navigator.clipboard.writeText(getShopURL()).then(()=>sh
 function shareShopLink(){ if(navigator.share){ navigator.share({title:SHOP_NAME,url:getShopURL()}).catch(()=>copyShopLink()); }else{ copyShopLink(); } }
 function previewShop(){ window.open(getShopURL(),'_blank'); }
 async function saveProductShopFlag(){ try{ await _idbPut('biz_products',products); }catch(e){} }
+
+// ═══════════════════════════════════════════════════
+// AUTO-CREATE CUSTOMERS FROM SHOP ORDERS
+// ═══════════════════════════════════════════════════
+async function syncShopCustomers(){
+  try {
+    const res = await fetch(`${FB_DB_URL}/shopCustomerQueue.json`);
+    if(!res.ok) return;
+    const queue = await res.json();
+    if(!queue) return;
+
+    let newCount = 0;
+    const processed = [];
+
+    for(const [orderNum, entry] of Object.entries(queue)){
+      if(!entry || !entry.name) continue;
+      const nameLower = entry.name.toLowerCase().trim();
+      const phonClean = (entry.phone||'').replace(/\D/g,'');
+
+      // Check if customer already exists by name or phone
+      const exists = customers.find(c => {
+        if(!c.name) return false;
+        if(c.name.toLowerCase().trim() === nameLower) return true;
+        if(phonClean && c.phone && c.phone.replace(/\D/g,'') === phonClean) return true;
+        return false;
+      });
+
+      if(!exists){
+        // Create new customer with shop badge
+        const newCust = {
+          id: 'cust-shop-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+          name: entry.name.trim(),
+          phone: entry.phone||'',
+          source: 'shop',
+          fromShop: true,
+          debt: 0,
+          totalSpent: entry.total||0,
+          orderCount: 1,
+          lastOrderDate: entry.date||new Date().toISOString().slice(0,10),
+          notes: 'Auto-created from shop order ' + orderNum,
+          createdAt: entry.date||new Date().toISOString().slice(0,10)
+        };
+        customers.push(newCust);
+        newCount++;
+      } else {
+        // Update existing customer stats
+        if(!exists.fromShop) exists.fromShop = true;
+        exists.orderCount = (exists.orderCount||0) + 1;
+        exists.totalSpent = (exists.totalSpent||0) + (entry.total||0);
+        if(!exists.lastOrderDate || entry.date > exists.lastOrderDate) exists.lastOrderDate = entry.date;
+      }
+      processed.push(orderNum);
+    }
+
+    if(processed.length > 0){
+      await saveCustomers();
+      // Clear processed entries from queue
+      for(const orderNum of processed){
+        fetch(`${FB_DB_URL}/shopCustomerQueue/${orderNum}.json`, {method:'DELETE'}).catch(()=>{});
+      }
+      if(newCount > 0) showToast(`🛍️ ${newCount} new shop customer${newCount>1?'s':''} added!`);
+    }
+  } catch(e){ console.log('syncShopCustomers error:', e); }
+}
