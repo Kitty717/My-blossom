@@ -6,7 +6,7 @@
 
 // SUPPLIES
 // ═══════════════════════════════════════════════════
-let supplyFilter = 'all';
+var supplyFilter = typeof supplyFilter !== 'undefined' ? supplyFilter : 'all';
 
 function renderSupplies(){
   const el = document.getElementById('supplies-list');
