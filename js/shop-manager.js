@@ -423,12 +423,8 @@ async function smUpdateOrderStatus(orderId, status){
     if(inv){
       if(status==='shipped')   { inv.status='shipped'; }
       if(status==='cancelled') { inv.status='cancelled'; if(typeof recalcDebt==='function') recalcDebt(inv.customer); }
-      if(status==='confirmed') { inv.status='unpaid'; }
-      if(status==='delivered') { 
-        // Keep as shipped in invoices — payment may still be pending
-        // Show a toast reminder to collect payment
-        setTimeout(()=>showToast('📦 Delivered! Remember to mark invoice as paid 💰'),1000);
-      }
+      if(status==='confirmed') { inv.status='confirmed'; }
+      if(status==='delivered') { inv.status='paid'; }
       saveInvoices();
       if(typeof recalcAllDebts==='function') recalcAllDebts();
     }
