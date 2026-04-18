@@ -4,9 +4,9 @@
 // Depends on: data.js, utils.js, inventory.js, dashboard.js, customers.js, currency.js
 // ═══════════════════════════════════════════════════
 
-let _invTab = 'all';
-let _invStore = 'all';
-let _invStatusSel = document.getElementById('inv-status');
+var _invTab = typeof _invTab !== 'undefined' ? _invTab : 'all';
+var _invStore = typeof _invStore !== 'undefined' ? _invStore : 'all';
+var _invStatusSel = typeof _invStatusSel !== 'undefined' ? _invStatusSel : document.getElementById('inv-status');
 
 function setInvStore(store){
   _invStore = store;
@@ -52,10 +52,8 @@ function renderInvoices(){
   const q = (document.getElementById('inv-search')?.value||'').toLowerCase().trim();
   let list = [...invoices].sort((a,b)=> (b.date||'').localeCompare(a.date||''));
   if(_invStore !== 'all') list = list.filter(i => (i.store||'ra') === _invStore);
-  // Shop orders only in Shop Invoices tab — filter from main list
-  if(_invTab !== 'orders') list = list.filter(i => !i.fromShop);
-  // Shop Invoices tab: show active shop invoices only (not cancelled)
-  if(_invTab === 'orders') list = list.filter(i => i.fromShop && i.status !== 'cancelled');
+  // "orders" tab = shop orders only. All other tabs show everything (including shop orders)
+  if(_invTab === 'orders') list = list.filter(i => i.fromShop);
   if(_invTab !== 'all' && _invTab !== 'orders') list = list.filter(i => i.status === _invTab);
   if(q) list = list.filter(i =>
     (i.customer||'').toLowerCase().includes(q) ||
@@ -201,8 +199,8 @@ function buildInvProdOptions(sel){ /* no-op: picker is now sheet-based */ }
 function addInvItem(){ openProdPicker(); }
 
 // ── Product Picker Sheet ──────────────────────────────────────────────────
-let _ppickStore = 'ra';
-let _ppickProducts = [];
+var _ppickStore = typeof _ppickStore !== 'undefined' ? _ppickStore : 'ra';
+var _ppickProducts = typeof _ppickProducts !== 'undefined' ? _ppickProducts : [];
 
 function openProdPicker(){
   _ppickStore = document.getElementById('inv-store')?.value || 'ra';
@@ -1314,11 +1312,11 @@ function triggerWebsiteUpdateNotif(invoiceItems, storeName){
 // =================================================
 // INVOICE TEMPLATE BUILDER
 // =================================================
-let _itplMode = 'ra';
-let _itplLogoData   = { ra:'', flora:'' };
-let _itplHeaderData = { ra:'', flora:'' };
+var _itplMode = typeof _itplMode !== 'undefined' ? _itplMode : 'ra';
+var _itplLogoData = typeof _itplLogoData !== 'undefined' ? _itplLogoData : { ra:'', flora:'' };
+var _itplHeaderData = typeof _itplHeaderData !== 'undefined' ? _itplHeaderData : { ra:'', flora:'' };
 
-const ITPL_DEFAULTS = {
+var ITPL_DEFAULTS = typeof ITPL_DEFAULTS !== 'undefined' ? ITPL_DEFAULTS : {
   ra:    { bizName:'RA Warehouse',    desc:'Wholesale Beauty & Cosmetics', wa:'', ig:'', address:'', bank:'', acc:'', showBank:true, currency:'usd', rate:'', thankyou:'Thank you for your business!', terms:'', logo:'', headerImg:'' },
   flora: { bizName:'Flora Gift Shop', desc:'Retail Gifts & Accessories',   wa:'', ig:'', address:'', bank:'', acc:'', showBank:true, currency:'usd', rate:'', thankyou:'Thank you for shopping with us! 🌸', terms:'', logo:'', headerImg:'' }
 };
@@ -1422,7 +1420,7 @@ function itplSave(){
 // SHOP ORDERS TAB  — Firebase orders → Invoices
 // ═══════════════════════════════════════════════════
 
-const FB_ORDERS_URL = 'https://ra-shop-3e01d-default-rtdb.firebaseio.com/orders';
+var FB_ORDERS_URL = typeof FB_ORDERS_URL !== 'undefined' ? FB_ORDERS_URL : 'https://ra-shop-3e01d-default-rtdb.firebaseio.com/orders';
 
 async function renderShopOrders(){
   const outer = document.getElementById('shop-orders-list');
@@ -1450,7 +1448,7 @@ async function renderShopOrders(){
 }
 
 // Track expanded order cards
-const _expandedOrders = new Set();
+var _expandedOrders = typeof _expandedOrders !== 'undefined' ? _expandedOrders : new Set();
 
 function toggleOrderCard(id){
   if(_expandedOrders.has(id)) _expandedOrders.delete(id);
@@ -1460,7 +1458,7 @@ function toggleOrderCard(id){
   if(el) el.outerHTML = _renderOrderCard(_lastOrdersData?.[id] || {id});
 }
 
-let _lastOrdersData = {};
+var _lastOrdersData = typeof _lastOrdersData !== 'undefined' ? _lastOrdersData : {};
 
 function _renderOrderCard(o){
   _lastOrdersData[o.id] = o;
