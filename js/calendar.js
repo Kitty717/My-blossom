@@ -7,7 +7,7 @@
 // ═══════════════════════════════════════════════════
 // TO-DO
 // ═══════════════════════════════════════════════════
-let _todoPinned = false;
+var _todoPinned = typeof _todoPinned !== 'undefined' ? _todoPinned : false;
 let _todoPrio = 'med';
 
 function openAddTodo(){
