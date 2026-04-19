@@ -59,11 +59,64 @@ function openShipmentDetail(sid){
       <button onclick="markRefundReceived('${s.id}')" style="width:100%;margin-top:8px;padding:8px;background:var(--green);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">✅ Mark Refund Received</button>
     </div>`:''}
     `;
+  // Check if shipment needs manual recovery button
+  const linkedProds = products.filter(p=>p.shipmentId===sid);
+  const linkedProdIds = new Set(linkedProds.map(p=>p.id));
+  const hasLinkedInvoices = invoices.some(inv=>inv.status!=='cancelled'&&(inv.items||[]).some(it=>linkedProdIds.has(it.productId)));
+  const showRecoveryBtn = s.status==='arrived' && !hasLinkedInvoices;
+
   document.getElementById('sd-foot').innerHTML = `
     <button class="btn btn-p" onclick="closeModal('m-ship-detail');goToShipmentProducts('${sid}')">📦 View Products</button>
     ${s.status!=='arrived'?`<button class="btn btn-green" onclick="markShipArrived('${sid}')">✅ Mark Arrived</button>`:''}
+    ${showRecoveryBtn||s.manualCollected>0?`<button class="btn btn-g" onclick="openManualRecovery('${sid}')" style="background:${s.manualCollected>0?'var(--green-soft)':'var(--grey)'};color:${s.manualCollected>0?'var(--green)':'var(--ink)'}">💰 ${s.manualCollected>0?'Recovered: $'+s.manualCollected.toLocaleString():'Mark Capital Recovered'}</button>`:''}
     <button class="btn btn-g" onclick="closeModal('m-ship-detail')">Close</button>`;
   showModal('m-ship-detail');
+}
+
+function openManualRecovery(sid){
+  const s = shipments.find(x=>x.id===sid); if(!s) return;
+  const cost = s.cost||0;
+  const current = s.manualCollected||0;
+  const ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(44,26,31,0.5);z-index:9000;display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML=`<div style="background:var(--cream);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px;font-family:'DM Sans',sans-serif">
+    <div style="width:36px;height:4px;background:rgba(26,10,16,0.12);border-radius:4px;margin:0 auto 20px"></div>
+    <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:4px">💰 Capital Recovery</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${s.name}</div>
+    <div style="background:var(--grey);border-radius:12px;padding:12px;margin-bottom:16px;display:flex;justify-content:space-between">
+      <span style="font-size:13px;color:var(--muted)">Shipment cost</span>
+      <span style="font-size:13px;font-weight:700;color:var(--ink)">$${cost.toLocaleString()}</span>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">How much did you collect from this shipment?</div>
+    <input id="manual-recovery-inp" type="number" step="0.01" value="${current||''}" placeholder="e.g. ${cost}"
+      style="width:100%;padding:14px;border:1.5px solid var(--grey2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:var(--ink);outline:none;margin-bottom:8px">
+    <div id="recovery-hint" style="font-size:11px;color:var(--muted);margin-bottom:16px;min-height:16px"></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="this.closest('div').parentElement.remove()" style="flex:1;padding:13px;background:var(--grey);border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)">Cancel</button>
+      <button onclick="saveManualRecovery('${sid}',document.getElementById('manual-recovery-inp').value);this.closest('div').parentElement.remove()" style="flex:2;padding:13px;background:linear-gradient(135deg,var(--green),#38b275);border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:white">💰 Save</button>
+    </div>
+  </div>`;
+  // Live hint
+  ov.querySelector('#manual-recovery-inp').addEventListener('input', function(){
+    const val = parseFloat(this.value)||0;
+    const hint = ov.querySelector('#recovery-hint');
+    if(!val){ hint.textContent=''; return; }
+    if(val>=cost) hint.innerHTML=`<span style="color:var(--green);font-weight:700">✅ Capital fully recovered! Profit: $${(val-cost).toFixed(2)}</span>`;
+    else hint.innerHTML=`<span style="color:var(--amber);font-weight:700">⚠️ ${Math.round((val/cost)*100)}% recovered · Still need $${(cost-val).toFixed(2)}</span>`;
+  });
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  document.body.appendChild(ov);
+  setTimeout(()=>ov.querySelector('#manual-recovery-inp')?.focus(),100);
+}
+
+function saveManualRecovery(sid, val){
+  const s = shipments.find(x=>x.id===sid); if(!s) return;
+  const amount = parseFloat(val)||0;
+  if(!amount){ showToast('Enter an amount','err'); return; }
+  s.manualCollected = amount;
+  saveShipments();
+  openShipmentDetail(sid);
+  showToast('💰 Recovery saved!');
 }
 
 function markShipArrived(sid){
@@ -254,8 +307,8 @@ function renderPendingArrivals(){
 }
 
 // ── Arrival Checklist (ship-level) ──
-let _checklistShipId = null;
-let _checklistItems = []; // [{pid, vid, name, emoji, ordered, received, shortage, resolution}]
+var _checklistShipId = typeof _checklistShipId !== 'undefined' ? _checklistShipId : null;
+var _checklistItems = typeof _checklistItems !== 'undefined' ? _checklistItems : []; // [{pid, vid, name, emoji, ordered, received, shortage, resolution}]
 
 function openShipChecklist(sid){
   const s = shipments.find(x=>x.id===sid);
@@ -444,7 +497,7 @@ function cfaAnswer(pid, vid, allArrived){
   }
 }
 
-let _cfaResolution = {}; // {vid: 'loss'|'refund'}
+var _cfaResolution = typeof _cfaResolution !== 'undefined' ? _cfaResolution : {}; // {vid: 'loss'|'refund'}
 
 function cfaUpdateShortage(pid, vid){
   const p = products.find(x=>x.id===pid);
