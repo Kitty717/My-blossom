@@ -1306,14 +1306,8 @@ function generateCatalogPDF(mode){
 
 // ── App Bootstrap (DOMContentLoaded) ──
 document.addEventListener('DOMContentLoaded', async ()=>{
-  // ── Multi-user login ──
-  const savedUser = localStorage.getItem('blossom_active_user');
-  if(!savedUser){
-    _showLoginScreen();
-    return;
-  }
-  window.blossomActiveUser = savedUser;
-  _applyUserTheme(savedUser);
+  window.blossomActiveUser = 'aya';
+  localStorage.setItem('blossom_active_user','aya');
   await _bootApp();
 });
 
@@ -1575,28 +1569,8 @@ async function _bootApp(){
   if(savedGroqKey){ const el = document.getElementById('groq-key-input'); if(el) el.value = savedGroqKey; }
   updateGroqStatus(!!savedGroqKey);
 
-  // Add switch user button to header
-  const hdr = document.querySelector('.topbar-right, .header-right, [id*="topbar"]');
-  _addSwitchUserBtn();
 }
 
-function _addSwitchUserBtn(){
-  // Add a small switch-user icon somewhere accessible
-  setTimeout(()=>{
-    const existing = document.getElementById('switch-user-btn');
-    if(existing) return;
-    const btn = document.createElement('button');
-    btn.id = 'switch-user-btn';
-    btn.title = 'Switch user';
-    btn.style.cssText = 'position:fixed;bottom:80px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(26,10,16,0.85);border:1px solid rgba(201,144,10,0.3);color:white;font-size:16px;cursor:pointer;z-index:200;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center';
-    btn.innerHTML = window.blossomActiveUser==='aya' ? '🌸' : '👑';
-    btn.onclick = ()=>{
-      localStorage.removeItem('blossom_active_user');
-      location.reload();
-    };
-    document.body.appendChild(btn);
-  }, 1000);
-}
 
 function _showRamezOnboarding(){
   const steps = [
