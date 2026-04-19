@@ -2017,10 +2017,12 @@ async function syncRamezDashboard(){
       id:p.id, name:p.name, emoji:p.emoji||'📦',
       category:p.category||'', store:p.store||'ra',
       priceRAPiece:p.priceRAPiece||0, priceFlora:p.priceFlora||0,
+      photo: p.photo||'',
       totalStock:(p.variants||[]).reduce((s,v)=>s+(v.ra||0)+(v.flora||0),0),
       variants:(p.variants||[]).map(v=>({
-        id:v.id, name:v.name||'', label:v.label||'',
-        ra:v.ra||0, flora:v.flora||0, colorHex:v.colorHex||''
+        id:v.id, name:v.name||'', label:v.label||v.name||'',
+        ra:v.ra||0, flora:v.flora||0, colorHex:v.colorHex||'',
+        photo:v.photo||''
       }))
     }));
 
