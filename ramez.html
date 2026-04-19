@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CEO Ramez">
+<title>CEO Dashboard · Ramez</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f1c2e;--navy2:#162436;--navy3:#1e3350;
+  --gold:#c9900a;--gold2:#e8b84b;--gold3:#f5d080;
+  --ink:#0f1c2e;--muted:#6b7f9a;--light:#e8eef7;
+  --white:#ffffff;--cream:#f8fafd;--warm:#f0f5ff;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --rose:#c0536a;--blue:#2563eb;
+  --shadow:0 2px 16px rgba(15,28,46,0.08);
+  --shadow-lg:0 8px 40px rgba(15,28,46,0.14);
+}
+html,body{min-height:100vh;background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--ink);overflow-x:hidden}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(145deg,#0f1c2e 0%,#162436 40%,#1a3050 70%,#0f2040 100%);
+  padding:52px 20px 32px;position:relative;overflow:hidden;
+}
+.hero-orb1{position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(201,144,10,0.15),transparent 70%);top:-80px;right:-60px}
+.hero-orb2{position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,0.12),transparent 70%);bottom:-40px;left:-20px}
+.hero-stripe{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),var(--gold3),var(--gold2),transparent)}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(201,144,10,0.15);border:1px solid rgba(201,144,10,0.3);border-radius:50px;padding:4px 12px}
+.hero-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--gold3);animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-badge span{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold3)}
+.hero-updated{font-size:10px;color:rgba(255,255,255,0.4);text-align:right}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:700;color:white;line-height:1.1;margin-bottom:4px;position:relative;z-index:1}
+.hero-title em{color:var(--gold3);font-style:italic}
+.hero-love{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:20px;position:relative;z-index:1}
+.hero-love span{color:var(--gold3)}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:1}
+.stat-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px}
+.stat-card.wide{grid-column:span 2}
+.stat-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:white;line-height:1}
+.stat-val.gold{color:var(--gold3)}
+.stat-val.green{color:#4ade80}
+.stat-val.red{color:#f87171}
+.stat-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px}
+
+/* ── NAV ── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:white;border-bottom:1px solid var(--light);
+  display:flex;overflow-x:auto;scrollbar-width:none;
+  padding:0 4px;
+}
+.nav::-webkit-scrollbar{display:none}
+.ntab{
+  flex-shrink:0;padding:12px 14px;font-size:12px;font-weight:700;
+  color:var(--muted);border:none;background:none;cursor:pointer;
+  border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;
+  white-space:nowrap;transition:all 0.2s;
+}
+.ntab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── CONTENT ── */
+.page-content{display:none;padding:16px 16px 80px}
+.page-content.active{display:block}
+
+/* ── SECTION LABELS ── */
+.slbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding:0 2px}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--light);margin-bottom:12px;overflow:hidden}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--light)}
+.card-title{font-size:14px;font-weight:700;color:var(--ink)}
+.card-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.card-body{padding:14px 16px}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.kpi{background:var(--warm);border-radius:14px;padding:12px;text-align:center}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);line-height:1}
+.kpi-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+.kpi-val.g{color:var(--green)}
+.kpi-val.r{color:var(--red)}
+.kpi-val.a{color:var(--amber)}
+.kpi-val.gold{color:var(--gold)}
+
+/* ── LIST ROWS ── */
+.list-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--light)}
+.list-row:last-child{border:none}
+.list-avatar{width:38px;height:38px;border-radius:10px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--gold);flex-shrink:0;font-family:'DM Sans',sans-serif}
+.list-name{font-size:13px;font-weight:600;color:var(--ink)}
+.list-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.list-right{text-align:right;flex-shrink:0}
+.list-amount{font-size:14px;font-weight:700;color:var(--ink)}
+.list-amount.r{color:var(--red)}
+.list-amount.g{color:var(--green)}
+.list-amount.gold{color:var(--gold)}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-unpaid{background:#fef3c7;color:#92400e}
+.badge-paid{background:#dcfce7;color:#166534}
+.badge-shipped{background:#dbeafe;color:#1e40af}
+.badge-confirmed{background:#d1fae5;color:#065f46}
+.badge-cancelled{background:#fee2e2;color:#991b1b}
+.badge-partial{background:#fef9c3;color:#713f12}
+.badge-ordered{background:#fef3c7;color:#92400e}
+.badge-onway{background:#dbeafe;color:#1e40af}
+.badge-arrived{background:#dcfce7;color:#166534}
+
+/* ── PROGRESS ── */
+.prog-wrap{background:var(--light);border-radius:6px;height:6px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold),var(--gold3));transition:width 1s ease}
+
+/* ── PRODUCT GRID ── */
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.prod-card{background:var(--warm);border-radius:14px;padding:12px}
+.prod-emoji{font-size:24px;margin-bottom:6px}
+.prod-name{font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-stock{font-size:11px;color:var(--muted);margin-top:2px}
+.prod-stock.low{color:var(--red);font-weight:700}
+.prod-price{font-size:11px;color:var(--gold);font-weight:600;margin-top:2px}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:60px 20px;color:var(--muted)}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--light);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+
+/* ── SEARCH ── */
+.search-inp{width:100%;padding:10px 14px;border:1.5px solid var(--light);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;margin-bottom:12px;background:var(--warm)}
+.search-inp:focus{border-color:var(--gold)}
+
+/* ── FILTER PILLS ── */
+.filter-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
+.filter-row::-webkit-scrollbar{display:none}
+.fpill{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid var(--light);background:var(--white);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s}
+.fpill.active{background:var(--navy);color:white;border-color:var(--navy)}
+
+/* ── CHART BARS ── */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:8px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar{width:100%;background:linear-gradient(180deg,var(--gold2),var(--gold));border-radius:4px 4px 0 0;min-height:2px;transition:height 0.8s ease}
+.bar-lbl{font-size:8px;color:var(--muted);font-weight:600}
+.bar-val{font-size:8px;color:var(--ink);font-weight:700}
+
+/* ── SHIPMENT CARD ── */
+.ship-card{background:var(--warm);border-radius:14px;padding:14px;margin-bottom:10px}
+.ship-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ship-name{font-size:14px;font-weight:700;color:var(--ink)}
+.ship-meta{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── FOOTER ── */
+.footer{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--light);display:flex;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:100}
+.ftab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 10px;border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;flex:1}
+.ftab-icon{font-size:18px}
+.ftab-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.ftab.active .ftab-lbl{color:var(--gold)}
+.ftab.active .ftab-icon{filter:drop-shadow(0 0 4px rgba(201,144,10,0.5))}
+
+/* ── REFRESH BTN ── */
+.refresh-btn{position:fixed;bottom:72px;right:16px;width:44px;height:44px;border-radius:50%;background:var(--navy);border:none;color:white;font-size:18px;cursor:pointer;box-shadow:0 4px 16px rgba(15,28,46,0.25);z-index:99;transition:transform 0.3s}
+.refresh-btn.spinning{animation:spin 0.8s linear infinite}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-orb1"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-stripe"></div>
+  <div class="hero-top">
+    <div class="hero-badge"><div class="hero-badge-dot"></div><span>Live Dashboard</span></div>
+    <div class="hero-updated" id="hero-updated">Loading...</div>
+  </div>
+  <div class="hero-title">CEO <em>Ramez</em></div>
+  <div class="hero-love">RA Jemle · Flora Gift Shop &nbsp;❤️&nbsp; <span>Built with love by Aya</span></div>
+  <div class="stat-grid" id="hero-stats">
+    <div class="stat-card"><div class="stat-label">Today's Revenue</div><div class="stat-val gold" id="h-today">$0</div></div>
+    <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-val green" id="h-month">$0</div></div>
+    <div class="stat-card"><div class="stat-label">Total Debt Owed</div><div class="stat-val red" id="h-debt">$0</div></div>
+    <div class="stat-card"><div class="stat-label">Month Profit</div><div class="stat-val" id="h-profit">$0</div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="ntab active" onclick="showTab('overview')">📊 Overview</button>
+  <button class="ntab" onclick="showTab('invoices')">🧾 Invoices</button>
+  <button class="ntab" onclick="showTab('customers')">👥 Customers</button>
+  <button class="ntab" onclick="showTab('products')">📦 Products</button>
+  <button class="ntab" onclick="showTab('shipments')">🚢 Shipments</button>
+  <button class="ntab" onclick="showTab('flora')">🌸 Flora</button>
+  <button class="ntab" onclick="showTab('expenses')">💸 Expenses</button>
+</div>
+
+<!-- OVERVIEW -->
+<div class="page-content active" id="tab-overview">
+  <div id="overview-content">
+    <div class="loading"><div class="loading-spinner"></div>Loading your empire...</div>
+  </div>
+</div>
+
+<!-- INVOICES -->
+<div class="page-content" id="tab-invoices">
+  <div class="filter-row" id="inv-filters">
+    <div class="fpill active" onclick="filterInv('all',this)">All</div>
+    <div class="fpill" onclick="filterInv('unpaid',this)">Unpaid</div>
+    <div class="fpill" onclick="filterInv('confirmed',this)">Confirmed</div>
+    <div class="fpill" onclick="filterInv('shipped',this)">Shipped</div>
+    <div class="fpill" onclick="filterInv('partial',this)">Partial</div>
+    <div class="fpill" onclick="filterInv('paid',this)">Paid</div>
+    <div class="fpill" onclick="filterInv('cancelled',this)">Cancelled</div>
+  </div>
+  <input class="search-inp" id="inv-search" placeholder="🔍 Search by customer or invoice #" oninput="renderInvoices()">
+  <div id="inv-list"></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div class="page-content" id="tab-customers">
+  <input class="search-inp" id="cust-search" placeholder="🔍 Search customers..." oninput="renderCustomers()">
+  <div class="filter-row">
+    <div class="fpill active" onclick="filterCust('all',this)">All</div>
+    <div class="fpill" onclick="filterCust('debt',this)">Has Debt</div>
+    <div class="fpill" onclick="filterCust('vip',this)">⭐ VIP</div>
+    <div class="fpill" onclick="filterCust('shop',this)">🛍️ Shop</div>
+  </div>
+  <div id="cust-list"></div>
+</div>
+
+<!-- PRODUCTS -->
+<div class="page-content" id="tab-products">
+  <input class="search-inp" id="prod-search" placeholder="🔍 Search products..." oninput="renderProducts()">
+  <div class="filter-row">
+    <div class="fpill active" onclick="filterProd('all',this)">All</div>
+    <div class="fpill" onclick="filterProd('ra',this)">🏪 RA</div>
+    <div class="fpill" onclick="filterProd('flora',this)">🌸 Flora</div>
+    <div class="fpill" onclick="filterProd('low',this)">⚠️ Low Stock</div>
+  </div>
+  <div id="prod-list"></div>
+</div>
+
+<!-- SHIPMENTS -->
+<div class="page-content" id="tab-shipments">
+  <div id="ship-list"></div>
+</div>
+
+<!-- FLORA -->
+<div class="page-content" id="tab-flora">
+  <div id="flora-content"></div>
+</div>
+
+<!-- EXPENSES -->
+<div class="page-content" id="tab-expenses">
+  <div id="exp-list"></div>
+</div>
+
+<!-- REFRESH BUTTON -->
+<button class="refresh-btn" id="refresh-btn" onclick="loadData()" title="Refresh">🔄</button>
+
+<script>
+const FB = 'https://ra-shop-3e01d-default-rtdb.firebaseio.com';
+let D = null; // full data snapshot
+let _invFilter = 'all';
+let _custFilter = 'all';
+let _prodFilter = 'all';
+let _activeTab = 'overview';
+
+// ── Load data ──
+async function loadData(){
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+  try {
+    const res = await fetch(`${FB}/ceo_dashboard.json`);
+    const data = await res.json();
+    if(!data){ showNoData(); return; }
+    D = data;
+    renderAll();
+  } catch(e){
+    document.getElementById('overview-content').innerHTML = `<div class="empty">⚠️ Could not load data.<br>Make sure Aya has the app open.<br><br><button onclick="loadData()" style="background:var(--navy);color:white;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Try Again</button></div>`;
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+function showNoData(){
+  document.getElementById('overview-content').innerHTML = `<div class="empty">📊 No data yet.<br>Ask Aya to open the app to sync. 💕</div>`;
+}
+
+function fmt(n){ return '$'+(n||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtD(n){ return '$'+(n||0).toFixed(2); }
+
+function renderAll(){
+  if(!D) return;
+  // Hero stats
+  const f = D.finance||{};
+  document.getElementById('h-today').textContent = fmt(f.todayRevenue);
+  document.getElementById('h-month').textContent = fmt(f.monthRevenue);
+  document.getElementById('h-debt').textContent = fmt(f.totalDebt);
+  const profEl = document.getElementById('h-profit');
+  profEl.textContent = fmt(f.monthProfit);
+  profEl.className = 'stat-val '+(f.monthProfit>=0?'green':'red');
+  document.getElementById('hero-updated').textContent = D.updatedAtStr||'';
+
+  renderOverview();
+  if(_activeTab !== 'overview') renderTab(_activeTab);
+}
+
+function renderOverview(){
+  const f = D.finance||{};
+  const c = D.counts||{};
+  const invs = D.invoices||[];
+  const ships = D.shipments||[];
+
+  // Quick counts
+  const html = `
+    <!-- Quick counts -->
+    <div class="kpi-row" style="margin-bottom:16px">
+      <div class="kpi"><div class="kpi-val">${c.totalInvoices||0}</div><div class="kpi-lbl">Invoices</div></div>
+      <div class="kpi"><div class="kpi-val r">${c.unpaidInvoices||0}</div><div class="kpi-lbl">Unpaid</div></div>
+      <div class="kpi"><div class="kpi-val">${c.totalCustomers||0}</div><div class="kpi-lbl">Customers</div></div>
+    </div>
+    <div class="kpi-row" style="margin-bottom:20px">
+      <div class="kpi"><div class="kpi-val">${c.totalProducts||0}</div><div class="kpi-lbl">Products</div></div>
+      <div class="kpi"><div class="kpi-val r">${c.lowStockProducts||0}</div><div class="kpi-lbl">Low Stock</div></div>
+      <div class="kpi"><div class="kpi-val a">${c.shipmentsInTransit||0}</div><div class="kpi-lbl">In Transit</div></div>
+    </div>
+
+    <!-- Finance summary -->
+    <div class="slbl">💰 Finance This Month</div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-body">
+        <div class="list-row">
+          <div style="flex:1"><div class="list-name">Revenue</div></div>
+          <div class="list-amount g">${fmt(f.monthRevenue)}</div>
+        </div>
+        <div class="list-row">
+          <div style="flex:1"><div class="list-name">Expenses</div></div>
+          <div class="list-amount r">${fmt(f.totalExpenses)}</div>
+        </div>
+        <div class="list-row">
+          <div style="flex:1"><div class="list-name" style="font-weight:800">Net Profit</div></div>
+          <div class="list-amount" style="font-size:18px;font-weight:800;color:${(f.monthProfit||0)>=0?'var(--green)':'var(--red)'}">${fmt(f.monthProfit)}</div>
+        </div>
+        <div class="list-row">
+          <div style="flex:1"><div class="list-name">Total Outstanding Debt</div></div>
+          <div class="list-amount r">${fmt(f.totalDebt)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top debtors -->
+    <div class="slbl">🔴 Top Debtors</div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-body">
+        ${(D.topDebtors||[]).slice(0,5).map(d=>`
+          <div class="list-row">
+            <div class="list-avatar">${d.name.charAt(0).toUpperCase()}</div>
+            <div style="flex:1"><div class="list-name">${d.name}</div>${d.phone?`<div class="list-sub">📱 ${d.phone}</div>`:''}</div>
+            <div class="list-right"><div class="list-amount r">${fmt(d.debt)}</div></div>
+          </div>`).join('')||'<div class="empty">No debts 🎉</div>'}
+      </div>
+    </div>
+
+    <!-- Shipments overview -->
+    <div class="slbl">🚢 Shipments</div>
+    ${ships.map(s=>`
+      <div class="ship-card">
+        <div class="ship-status-row">
+          <div><div class="ship-name">${s.name}</div>${s.supplier?`<div class="ship-meta">🏭 ${s.supplier}</div>`:''}</div>
+          <span class="badge badge-${s.status}">${{ordered:'⏳ Ordered',onway:'🚢 On Way',arrived:'✅ Arrived'}[s.status]||s.status}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">
+          <span>💵 Cost: <strong style="color:var(--ink)">${fmt(s.cost)}</strong></span>
+          <span>📦 ${s.prodCount} products</span>
+          ${s.eta?`<span>📅 ${s.eta}</span>`:''}
+        </div>
+        ${s.manualCollected>0?`<div style="margin-top:6px;font-size:11px;color:var(--green);font-weight:700">💰 Recovered: ${fmt(s.manualCollected)}</div>`:''}
+      </div>`).join('')||'<div class="empty">No shipments yet</div>'}
+
+    <!-- Recent invoices -->
+    <div class="slbl" style="margin-top:4px">🧾 Recent Invoices</div>
+    <div class="card">
+      <div class="card-body">
+        ${[...(D.invoices||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8).map(i=>`
+          <div class="list-row">
+            <div class="list-avatar">${i.customer?.charAt(0)?.toUpperCase()||'?'}</div>
+            <div style="flex:1">
+              <div class="list-name">${i.customer||'Unknown'}</div>
+              <div class="list-sub">${i.num||i.id} · ${i.date||''}</div>
+            </div>
+            <div class="list-right">
+              <div class="list-amount">${fmt(i.total)}</div>
+              <span class="badge badge-${i.status}">${i.status}</span>
+            </div>
+          </div>`).join('')||'<div class="empty">No invoices yet</div>'}
+      </div>
+    </div>`;
+
+  document.getElementById('overview-content').innerHTML = html;
+}
+
+function showTab(tab){
+  _activeTab = tab;
+  document.querySelectorAll('.page-content').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('active'));
+  event.target.classList.add('active');
+  if(D) renderTab(tab);
+}
+
+function renderTab(tab){
+  if(tab==='invoices') renderInvoices();
+  else if(tab==='customers') renderCustomers();
+  else if(tab==='products') renderProducts();
+  else if(tab==='shipments') renderShipments();
+  else if(tab==='flora') renderFlora();
+  else if(tab==='expenses') renderExpenses();
+}
+
+// ── INVOICES ──
+function filterInv(f, el){
+  _invFilter = f;
+  document.querySelectorAll('#inv-filters .fpill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderInvoices();
+}
+function renderInvoices(){
+  if(!D) return;
+  const q = (document.getElementById('inv-search')?.value||'').toLowerCase();
+  let list = [...(D.invoices||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(_invFilter!=='all') list = list.filter(i=>i.status===_invFilter);
+  if(q) list = list.filter(i=>(i.customer||'').toLowerCase().includes(q)||(i.num||'').toLowerCase().includes(q));
+  const el = document.getElementById('inv-list');
+  if(!list.length){ el.innerHTML='<div class="empty">No invoices found</div>'; return; }
+  el.innerHTML = `<div class="card"><div class="card-body">${list.map(i=>`
+    <div class="list-row">
+      <div class="list-avatar">${i.customer?.charAt(0)?.toUpperCase()||'?'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="list-name">${i.customer||'Unknown'}</div>
+        <div class="list-sub">${i.num||i.id} · ${i.date||''} · ${i.items} item${i.items!==1?'s':''}</div>
+      </div>
+      <div class="list-right">
+        <div class="list-amount">${fmt(i.total)}</div>
+        <span class="badge badge-${i.status}">${i.status}</span>
+        ${i.status==='partial'?`<div style="font-size:10px;color:var(--amber);margin-top:2px">Paid: ${fmt(i.paidAmt)}</div>`:''}
+      </div>
+    </div>`).join('')}</div></div>`;
+}
+
+// ── CUSTOMERS ──
+function filterCust(f, el){
+  _custFilter = f;
+  document.querySelectorAll('#tab-customers .fpill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderCustomers();
+}
+function renderCustomers(){
+  if(!D) return;
+  const q = (document.getElementById('cust-search')?.value||'').toLowerCase();
+  let list = [...(D.customers||[])].sort((a,b)=>(b.debt||0)-(a.debt||0));
+  if(_custFilter==='debt') list = list.filter(c=>c.debt>0);
+  else if(_custFilter==='vip') list = list.filter(c=>c.vip);
+  else if(_custFilter==='shop') list = list.filter(c=>c.fromShop);
+  if(q) list = list.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.phone||'').includes(q));
+  const el = document.getElementById('cust-list');
+  if(!list.length){ el.innerHTML='<div class="empty">No customers found</div>'; return; }
+
+  // Summary
+  const totalDebt = list.reduce((s,c)=>s+(c.debt||0),0);
+  const withDebt = list.filter(c=>c.debt>0).length;
+
+  el.innerHTML = `
+    <div class="kpi-row" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-val">${list.length}</div><div class="kpi-lbl">Showing</div></div>
+      <div class="kpi"><div class="kpi-val r">${withDebt}</div><div class="kpi-lbl">With Debt</div></div>
+      <div class="kpi"><div class="kpi-val r" style="font-size:16px">${fmt(totalDebt)}</div><div class="kpi-lbl">Total Debt</div></div>
+    </div>
+    <div class="card"><div class="card-body">${list.map(c=>`
+      <div class="list-row">
+        <div class="list-avatar" style="${c.vip?'background:linear-gradient(135deg,#fef3c7,#fde68a);color:#b45309':''}">
+          ${c.vip?'⭐':c.name?.charAt(0)?.toUpperCase()||'?'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="list-name">${c.name} ${c.fromShop?'🛍️':''}</div>
+          <div class="list-sub">${c.phone||''} ${c.city?'· '+c.city:''} ${c.lastOrderDate?'· Last: '+c.lastOrderDate:''}</div>
+        </div>
+        <div class="list-right">
+          ${c.debt>0?`<div class="list-amount r">${fmt(c.debt)}</div><div style="font-size:10px;color:var(--red)">owes</div>`:`<div style="font-size:11px;color:var(--green);font-weight:700">✓ Clear</div>`}
+        </div>
+      </div>`).join('')}</div></div>`;
+}
+
+// ── PRODUCTS ──
+function filterProd(f, el){
+  _prodFilter = f;
+  document.querySelectorAll('#tab-products .fpill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderProducts();
+}
+function renderProducts(){
+  if(!D) return;
+  const q = (document.getElementById('prod-search')?.value||'').toLowerCase();
+  let list = [...(D.products||[])].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  if(_prodFilter==='ra') list = list.filter(p=>p.store==='ra'||p.store==='both');
+  else if(_prodFilter==='flora') list = list.filter(p=>p.store==='flora'||p.store==='both');
+  else if(_prodFilter==='low') list = list.filter(p=>(p.totalStock||0)<5);
+  if(q) list = list.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.category||'').toLowerCase().includes(q));
+  const el = document.getElementById('prod-list');
+  if(!list.length){ el.innerHTML='<div class="empty">No products found</div>'; return; }
+
+  const totalUnits = list.reduce((s,p)=>s+(p.totalStock||0),0);
+  el.innerHTML = `
+    <div class="kpi-row" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-val">${list.length}</div><div class="kpi-lbl">Products</div></div>
+      <div class="kpi"><div class="kpi-val">${totalUnits}</div><div class="kpi-lbl">Total Units</div></div>
+      <div class="kpi"><div class="kpi-val r">${list.filter(p=>(p.totalStock||0)<5).length}</div><div class="kpi-lbl">Low Stock</div></div>
+    </div>
+    <div class="prod-grid">${list.map(p=>`
+      <div class="prod-card">
+        <div class="prod-emoji">${p.emoji||'📦'}</div>
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-stock ${(p.totalStock||0)<5?'low':''}">${p.totalStock||0} units${(p.totalStock||0)<5?' ⚠️':''}</div>
+        <div class="prod-price">${p.priceRAPiece?'$'+p.priceRAPiece+'/pc':''} ${p.priceFlora?'· Flora $'+p.priceFlora:''}</div>
+        ${(p.variants||[]).length>1?`<div style="font-size:9px;color:var(--muted);margin-top:3px">${p.variants.length} variants</div>`:''}
+      </div>`).join('')}
+    </div>`;
+}
+
+// ── SHIPMENTS ──
+function renderShipments(){
+  if(!D) return;
+  const ships = [...(D.shipments||[])].sort((a,b)=>{
+    const order={ordered:0,onway:1,arrived:2};
+    return (order[a.status]||0)-(order[b.status]||0);
+  });
+  const el = document.getElementById('ship-list');
+  if(!ships.length){ el.innerHTML='<div class="empty">No shipments</div>'; return; }
+
+  const totalCost = ships.reduce((s,sh)=>s+(sh.cost||0),0);
+  const arrived = ships.filter(s=>s.status==='arrived').length;
+  const inTransit = ships.filter(s=>s.status==='onway'||s.status==='ordered').length;
+
+  el.innerHTML = `
+    <div class="kpi-row" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-val">${ships.length}</div><div class="kpi-lbl">Total</div></div>
+      <div class="kpi"><div class="kpi-val a">${inTransit}</div><div class="kpi-lbl">In Transit</div></div>
+      <div class="kpi"><div class="kpi-val g">${arrived}</div><div class="kpi-lbl">Arrived</div></div>
+    </div>
+    <div style="background:var(--warm);border-radius:14px;padding:12px;margin-bottom:14px;text-align:center">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Total Invested in Shipments</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--navy)">${fmt(totalCost)}</div>
+    </div>
+    ${ships.map(s=>{
+      const prodsList = (D.products||[]).filter(p=>p.shipmentId===s.id);
+      return `<div class="ship-card">
+        <div class="ship-status-row">
+          <div>
+            <div class="ship-name">${s.name}</div>
+            ${s.supplier?`<div class="ship-meta">🏭 ${s.supplier}</div>`:''}
+          </div>
+          <span class="badge badge-${s.status}">${{ordered:'⏳ Ordered',onway:'🚢 On Way',arrived:'✅ Arrived'}[s.status]||s.status}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <div style="background:rgba(15,28,46,0.04);border-radius:10px;padding:8px;text-align:center">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:2px">Cost</div>
+            <div style="font-size:16px;font-weight:700;color:var(--ink)">${fmt(s.cost)}</div>
+          </div>
+          <div style="background:rgba(15,28,46,0.04);border-radius:10px;padding:8px;text-align:center">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:700;margin-bottom:2px">Products</div>
+            <div style="font-size:16px;font-weight:700;color:var(--ink)">${s.prodCount}</div>
+          </div>
+        </div>
+        ${s.eta?`<div style="font-size:11px;color:var(--muted);margin-top:6px">📅 ETA: ${s.eta}</div>`:''}
+        ${s.manualCollected>0?`
+          <div style="margin-top:8px;background:#dcfce7;border-radius:10px;padding:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;font-weight:700;color:var(--green)">💰 Capital Recovered</span>
+            <span style="font-size:14px;font-weight:800;color:var(--green)">${fmt(s.manualCollected)}</span>
+          </div>`:s.status==='arrived'?`
+          <div style="margin-top:8px;background:#fef3c7;border-radius:10px;padding:8px">
+            <span style="font-size:11px;color:var(--amber)">⏳ Capital recovery not yet marked</span>
+          </div>`:''}
+      </div>`;
+    }).join('')}`;
+}
+
+// ── FLORA ──
+function renderFlora(){
+  if(!D) return;
+  const orders = [...(D.floraOrders||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const el = document.getElementById('flora-content');
+
+  const total = orders.reduce((s,o)=>s+(o.total||0),0);
+  const pending = orders.filter(o=>o.status==='processing'||o.status==='pending').length;
+  const done = orders.filter(o=>o.status==='delivered'||o.status==='paid').length;
+
+  el.innerHTML = `
+    <div class="kpi-row" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-val">${orders.length}</div><div class="kpi-lbl">Orders</div></div>
+      <div class="kpi"><div class="kpi-val a">${pending}</div><div class="kpi-lbl">Pending</div></div>
+      <div class="kpi"><div class="kpi-val g">${done}</div><div class="kpi-lbl">Done</div></div>
+    </div>
+    <div style="background:linear-gradient(135deg,#fce8ec,#f4a0b0);border-radius:16px;padding:16px;margin-bottom:14px;text-align:center">
+      <div style="font-size:11px;color:rgba(100,20,40,0.6);margin-bottom:4px">🌸 Flora Total Revenue</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#7a1535">${fmt(total)}</div>
+    </div>
+    ${orders.length?`<div class="card"><div class="card-body">${orders.map(o=>`
+      <div class="list-row">
+        <div class="list-avatar" style="background:linear-gradient(135deg,#fce8ec,#f4a0b0);color:#c0536a">${o.customer?.charAt(0)?.toUpperCase()||'🌸'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="list-name">${o.customer||'Customer'}</div>
+          <div class="list-sub">${o.num||o.id} · ${o.date||''}</div>
+        </div>
+        <div class="list-right">
+          <div class="list-amount">${fmt(o.total)}</div>
+          <span class="badge badge-${o.status||'pending'}">${o.status||'pending'}</span>
+        </div>
+      </div>`).join('')}</div></div>`:'<div class="empty">No Flora orders yet 🌸</div>'}`;
+}
+
+// ── EXPENSES ──
+function renderExpenses(){
+  if(!D) return;
+  const exps = [...(D.expenses||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const el = document.getElementById('exp-list');
+
+  const total = exps.reduce((s,e)=>s+(e.amount||0),0);
+  const byCategory = {};
+  exps.forEach(e=>{ const c=e.category||'Other'; byCategory[c]=(byCategory[c]||0)+(e.amount||0); });
+  const cats = Object.entries(byCategory).sort((a,b)=>b[1]-a[1]);
+
+  el.innerHTML = `
+    <div style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-radius:16px;padding:16px;margin-bottom:14px;text-align:center">
+      <div style="font-size:11px;color:rgba(100,20,20,0.6);margin-bottom:4px">💸 This Month's Expenses</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#991b1b">${fmt(total)}</div>
+    </div>
+    ${cats.length?`
+    <div class="slbl">By Category</div>
+    <div class="card" style="margin-bottom:14px"><div class="card-body">
+      ${cats.map(([cat,amt])=>{
+        const pct = total>0?Math.round((amt/total)*100):0;
+        return `<div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:12px;font-weight:600;color:var(--ink)">${cat}</span>
+            <span style="font-size:12px;font-weight:700;color:var(--red)">${fmt(amt)} <span style="color:var(--muted);font-weight:400">${pct}%</span></span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--red),#f87171)"></div></div>
+        </div>`;
+      }).join('')}
+    </div></div>`:''}
+    ${exps.length?`
+    <div class="slbl">All Expenses</div>
+    <div class="card"><div class="card-body">${exps.map(e=>`
+      <div class="list-row">
+        <div style="flex:1;min-width:0">
+          <div class="list-name">${e.name||'Expense'}</div>
+          <div class="list-sub">${e.category||''} · ${e.date||''} ${e.store?'· '+e.store:''}</div>
+        </div>
+        <div class="list-amount r">${fmt(e.amount)}</div>
+      </div>`).join('')}</div></div>`:'<div class="empty">No expenses this month</div>'}`;
+}
+
+// ── Auto-refresh every 5 minutes ──
+setInterval(loadData, 5*60*1000);
+
+// ── Init ──
+loadData();
+</script>
+</body>
+</html>
