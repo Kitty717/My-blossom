@@ -352,6 +352,16 @@ function openAutoBundle(){
   document.getElementById('ab-pkg').value = '0';
   document.getElementById('ab-gen-btn').textContent = '✨ Build My Bundle';
   document.getElementById('ab-gen-btn').disabled = false;
+  // Populate shipment filter
+  const sel = document.getElementById('ab-shipment-filter');
+  if(sel){
+    sel.innerHTML = '<option value="">🌸 All Flora Stock</option>';
+    const arrivedShips = (shipments||[]).filter(s=>s.status==='arrived');
+    arrivedShips.forEach(s=>{
+      const prodCount = products.filter(p=>p.shipmentId===s.id&&p.variants.some(v=>p.store==='flora'?(v.flora||0)>0:(v.ra||0)>0)).length;
+      if(prodCount>0) sel.innerHTML += `<option value="${s.id}">🚢 ${s.name} (${prodCount} products)</option>`;
+    });
+  }
   showModal('m-auto-bundle');
 }
 
@@ -404,9 +414,11 @@ async function runAutoBundle(){
   const key = localStorage.getItem('groq_key');
   if(!key){ showToast('No Groq API key — add it in Settings','err'); return; }
 
-  // Build inventory snapshot for AI — only Flora products with stock, max 30
+  // Build inventory snapshot for AI — filter by shipment if selected, max 30
+  const shipmentFilter = document.getElementById('ab-shipment-filter')?.value || '';
   const invSnapshot = products
     .filter(p=>p.variants.some(v=>p.store==='flora' ? (v.flora||0)>0 : (v.ra||0)>0))
+    .filter(p=>!shipmentFilter || p.shipmentId===shipmentFilter)
     .slice(0, 30)
     .map(p=>({
       id: p.id,
@@ -432,11 +444,14 @@ async function runAutoBundle(){
     ? `Build ONE gift bundle of exactly ${count} products`
     : `Build ONE gift bundle — choose however many products best fit the budget (aim for 3–8 items that feel balanced and generous)`;
 
+  const shipName = shipmentFilter ? (shipments||[]).find(s=>s.id===shipmentFilter)?.name||'selected shipment' : '';
+  const sourceNote = shipmentFilter ? `\nNOTE: All products are from shipment "${shipName}" — use only items from this list.` : '';
+
   const prompt = `You are a gift box curator for Flora Gift Shop, a retail gift store.
 
 TASK: ${countInstruction} for occasion: "${_abOccasion}".
 Budget for products only: $${budget} (not including $${pkg} packaging cost).
-${colorInstruction}
+${colorInstruction}${sourceNote}
 
 FULL INVENTORY (only items with Flora stock):
 ${JSON.stringify(invSnapshot, null, 2)}
@@ -636,6 +651,3 @@ function fulfillAutoBundle(){
   const b = bundles[bundles.length-1];
   if(b) fulfillBundle(b.id);
 }
-
-
-
