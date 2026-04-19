@@ -84,6 +84,10 @@ function calcShipPL(s){
       const k=inv.customer||'Unknown'; debtors[k]=(debtors[k]||0)+itemsTotal;
     }
   });
+  // Use manual collected amount for old shipments with no linked invoices
+  if(collected===0 && totalInvoiced===0 && s.manualCollected>0){
+    collected = s.manualCollected;
+  }
   let unsoldUnits=0, unsoldPotential=0;
   shipProds.forEach(p=>{
     (p.variants||[]).forEach(v=>{
