@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CEO Ramez">
+<title>CEO Dashboard · Ramez</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,700&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1c2e;--navy2:#162436;--navy3:#1e3350;--navy4:#243d60;
+  --gold:#c9900a;--gold2:#e8b84b;--gold3:#f5d080;
+  --ink:#0f1c2e;--muted:#6b7f9a;--light:#dde6f5;--lighter:#eef3fb;
+  --white:#fff;--bg:#f0f5ff;
+  --green:#16a34a;--green-s:#dcfce7;
+  --red:#dc2626;--red-s:#fee2e2;
+  --amber:#d97706;--amber-s:#fef3c7;
+  --blue:#2563eb;--blue-s:#dbeafe;
+  --rose:#e8748a;--rose-s:#fce8ec;
+  --shadow:0 2px 16px rgba(15,28,46,0.08);
+  --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);height:100%;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+
+/* TOPBAR */
+.topbar{height:54px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 14px;flex-shrink:0;box-shadow:0 2px 12px rgba(15,28,46,0.4);z-index:100}
+.tb-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);font-size:16px;flex-shrink:0}
+.tb-logo{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:var(--gold2);letter-spacing:0.5px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-time{font-size:10px;color:rgba(255,255,255,0.35);font-weight:500}
+
+/* SYNC BANNER */
+.sync-bar{background:var(--navy3);padding:5px 16px;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.45);flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06)}
+
+/* GLOBAL SEARCH */
+.gsearch{background:var(--navy2);padding:8px 14px;flex-shrink:0;display:none;border-bottom:1px solid rgba(255,255,255,0.08)}
+.gsearch input{width:100%;padding:10px 14px 10px 36px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.08);color:white;font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.gsearch input::placeholder{color:rgba(255,255,255,0.3)}
+.gsearch-icon{position:absolute;left:26px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:13px;pointer-events:none}
+.gsearch-wrap{position:relative}
+.gsearch-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;border-radius:6px;color:rgba(255,255,255,0.5);font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit}
+.gsearch-results{max-height:55vh;overflow-y:auto;margin-top:8px}
+.gs-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.06);border-radius:12px;margin-bottom:5px;cursor:pointer;transition:background 0.15s}
+.gs-item:active{background:rgba(255,255,255,0.12)}
+.gs-av{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--gold2);flex-shrink:0;overflow:hidden;font-size:14px}
+.gs-av img{width:100%;height:100%;object-fit:cover}
+.gs-name{font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gs-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px}
+
+/* SIDEBAR */
+.sb-bg{position:fixed;inset:0;background:rgba(10,18,30,0.65);z-index:500;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(3px)}
+.sb-bg.open{opacity:1;pointer-events:all}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:265px;background:var(--navy);z-index:600;transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;box-shadow:6px 0 40px rgba(10,18,30,0.5)}
+.sidebar.open{transform:translateX(0)}
+.sb-head{padding:48px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.07);background:linear-gradient(145deg,var(--navy3),var(--navy));position:relative;overflow:hidden}
+.sb-orb{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(201,144,10,0.15),transparent 70%);right:-20px;top:-20px}
+.sb-head h1{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--gold2);position:relative;z-index:1}
+.sb-head p{font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;position:relative;z-index:1}
+.sb-love{font-size:11px;color:rgba(232,184,75,0.55);margin-top:5px;font-style:italic;position:relative;z-index:1}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 8px;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.sb-item{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.5);transition:all 0.15s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.sb-item.active{background:rgba(201,144,10,0.15);color:var(--gold2);font-weight:700;border-left:3px solid var(--gold2);padding-left:10px}
+.sb-item:active{transform:scale(0.98)}
+.sb-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.sb-foot{padding:14px;border-top:1px solid rgba(255,255,255,0.07)}
+.sb-sync{font-size:10px;color:rgba(255,255,255,0.25);text-align:center}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;overflow-x:hidden}
+.page{display:none;padding:0 0 80px;animation:pIn 0.25s ease}
+.page.active{display:block}
+@keyframes pIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HERO */
+.hero{background:linear-gradient(150deg,var(--navy) 0%,var(--navy2) 40%,var(--navy3) 70%,var(--navy4) 100%);padding:26px 18px 26px;position:relative;overflow:hidden}
+.h-orb1{position:absolute;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(201,144,10,0.13),transparent 70%);top:-100px;right:-60px;pointer-events:none}
+.h-orb2{position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,0.1),transparent 70%);bottom:-60px;left:-30px;pointer-events:none}
+.h-stripe{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),var(--gold3),var(--gold2),transparent)}
+.h-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:1}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,144,10,0.15);border:1px solid rgba(201,144,10,0.3);border-radius:50px;padding:4px 11px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--gold3);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.live-badge span{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold3)}
+.h-dt{font-size:10px;color:rgba(255,255,255,0.35)}
+.h-title{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:white;line-height:1;margin-bottom:3px;position:relative;z-index:1}
+.h-title em{color:var(--gold3);font-style:italic}
+.h-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:18px;position:relative;z-index:1}
+.h-sub span{color:rgba(232,184,75,0.65)}
+.h-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;position:relative;z-index:1}
+.hs{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);border-radius:13px;padding:12px;cursor:pointer;transition:background 0.15s}
+.hs:active{background:rgba(255,255,255,0.11)}
+.hs-lbl{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.38);margin-bottom:4px}
+.hs-val{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:white;line-height:1}
+.hs-val.gold{color:var(--gold3)}
+.hs-val.green{color:#4ade80}
+.hs-val.red{color:#fca5a5}
+
+/* HEALTH SCORE */
+.health-card{margin:12px 14px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:14px;position:relative;z-index:1;cursor:pointer;transition:background 0.15s}
+.health-card:active{background:rgba(255,255,255,0.1)}
+.health-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.health-lbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.38)}
+.health-score{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:white}
+.health-label{font-size:11px;color:rgba(255,255,255,0.55);font-weight:600}
+.health-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:6px;overflow:hidden}
+.health-fill{height:100%;border-radius:6px;transition:width 1.2s cubic-bezier(0.34,1.3,0.64,1)}
+
+/* PAGE HEADER */
+.ph{padding:18px 14px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.pt{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink)}
+.ps{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--lighter);margin:0 14px 10px;overflow:hidden;animation:cIn 0.35s ease both}
+@keyframes cIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card:nth-child(1){animation-delay:0.04s}.card:nth-child(2){animation-delay:0.08s}.card:nth-child(3){animation-delay:0.12s}.card:nth-child(4){animation-delay:0.16s}.card:nth-child(5){animation-delay:0.2s}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer;transition:background 0.15s;user-select:none}
+.ch:active{background:var(--lighter)}
+.ct{font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:7px}
+.ca{color:var(--muted);font-size:15px;transition:transform 0.22s;display:inline-block}
+.ca.open{transform:rotate(90deg)}
+.cb{padding:0 14px 12px;display:none}
+.cb.open{display:block;animation:bIn 0.2s ease}
+@keyframes bIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+
+/* KPI */
+.kr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 14px 10px}
+.kr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:0 14px 10px}
+.kpi{background:var(--white);border-radius:14px;padding:13px;box-shadow:var(--shadow);border:1px solid var(--lighter);text-align:center;animation:cIn 0.35s ease both}
+.kv{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);line-height:1}
+.kv.g{color:var(--green)}.kv.r{color:var(--red)}.kv.a{color:var(--amber)}.kv.gold{color:var(--gold)}
+.kl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+
+/* LIST ROW */
+.lr{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--lighter)}
+.lr:last-child{border:none}
+.lr.tap{cursor:pointer;transition:background 0.15s;margin:0 -14px;padding:10px 14px}
+.lr.tap:active{background:var(--lighter)}
+.lav{width:38px;height:38px;border-radius:11px;background:var(--lighter);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--navy);flex-shrink:0;overflow:hidden}
+.lav img{width:100%;height:100%;object-fit:cover}
+.lif{flex:1;min-width:0}
+.ln{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsub{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lval{text-align:right;flex-shrink:0}
+.lv{font-size:13px;font-weight:700;color:var(--ink)}
+.lv.r{color:var(--red)}.lv.g{color:var(--green)}.lv.gold{color:var(--gold)}
+
+/* BADGES */
+.b{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.bg{background:var(--green-s);color:var(--green)}
+.br{background:var(--red-s);color:var(--red)}
+.ba{background:var(--amber-s);color:var(--amber)}
+.bb{background:var(--blue-s);color:var(--blue)}
+.bm{background:var(--lighter);color:var(--muted)}
+.bp{background:#f3effe;color:#7c3aed}
+
+/* DEBT AGING */
+.age-30{color:var(--amber);font-size:9px;font-weight:700}
+.age-60{color:var(--red);font-size:9px;font-weight:700}
+.age-90{color:#991b1b;font-size:9px;font-weight:700;background:var(--red-s);padding:1px 5px;border-radius:4px}
+
+/* SEARCH */
+.sw{position:relative;margin:0 14px 10px}
+.si{width:100%;padding:10px 14px 10px 36px;border:1.5px solid var(--lighter);border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--white);box-shadow:var(--shadow)}
+.si:focus{border-color:var(--gold2)}
+.si-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
+
+/* FILTER PILLS */
+.fr{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 14px 10px;padding-bottom:2px}
+.fr::-webkit-scrollbar{display:none}
+.fp{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid var(--lighter);background:var(--white);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;box-shadow:var(--shadow)}
+.fp.active{background:var(--navy);color:white;border-color:var(--navy)}
+
+/* PROGRESS */
+.prog{height:5px;background:var(--lighter);border-radius:5px;overflow:hidden;margin-top:5px}
+.prog-f{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:5px;transition:width 1s cubic-bezier(0.34,1.3,0.64,1)}
+
+/* PRODUCT GRID */
+.pg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 14px;margin-bottom:10px}
+.pc{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--lighter);cursor:pointer;transition:transform 0.15s;animation:cIn 0.35s ease both}
+.pc:active{transform:scale(0.96)}
+.pi{width:100%;height:90px;background:var(--lighter);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;position:relative}
+.pi img{width:100%;height:100%;object-fit:cover}
+.plow{position:absolute;top:4px;right:4px;font-size:8px;font-weight:800;padding:2px 5px;border-radius:8px}
+.plow.out{background:var(--red);color:white}
+.plow.low{background:var(--amber);color:white}
+.pb{padding:7px 8px}
+.pn{font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ps2{font-size:9px;color:var(--muted);margin-top:1px}
+.pp{font-size:9px;color:var(--gold);font-weight:600;margin-top:1px}
+
+/* SHIPMENT TIMELINE */
+.timeline{display:flex;align-items:center;margin:8px 0;position:relative}
+.tl-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;position:relative;z-index:1;border:2px solid transparent}
+.tl-dot.done{background:var(--green-s);border-color:var(--green)}
+.tl-dot.active{background:var(--amber-s);border-color:var(--amber)}
+.tl-dot.pending{background:var(--lighter);border-color:var(--light)}
+.tl-label{font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:4px;text-align:center;letter-spacing:0.5px}
+.tl-date{font-size:8px;color:var(--muted);margin-top:1px;text-align:center}
+.tl-line{flex:1;height:2px;background:var(--lighter);position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);z-index:0}
+.tl-line.done{background:var(--green)}
+
+/* DAILY SUMMARY */
+.daily-card{margin:12px 14px 0;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px;position:relative;z-index:1;display:flex;align-items:center;gap:14px}
+.daily-icon{font-size:24px}
+.daily-text{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5}
+.daily-text strong{color:var(--gold3)}
+
+/* SMART ALERTS */
+.alerts-wrap{margin:0 14px 10px}
+.alert-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;margin-bottom:6px;cursor:pointer;transition:opacity 0.15s;animation:cIn 0.3s ease both}
+.alert-item:active{opacity:0.8}
+.alert-icon{font-size:18px;flex-shrink:0}
+.alert-text{font-size:12px;font-weight:600;flex:1}
+.alert-arr{color:var(--muted);font-size:14px}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:6px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 0.8s cubic-bezier(0.34,1.3,0.64,1)}
+.bar-lbl{font-size:8px;color:var(--muted);font-weight:700}
+.bar-val{font-size:7px;color:var(--ink);font-weight:700}
+
+/* VARIANT CHIPS */
+.vchips{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.vchip{display:flex;align-items:center;gap:3px;background:var(--lighter);border-radius:20px;padding:2px 6px;font-size:9px;font-weight:600;color:var(--ink)}
+.vdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,0.1)}
+.vimg{width:11px;height:11px;border-radius:3px;object-fit:cover}
+
+/* SECTION LABEL */
+.slbl{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 14px 8px;padding-top:2px}
+
+/* BOTTOM SHEET MODAL */
+.bsm{display:none;position:fixed;inset:0;z-index:800;background:rgba(10,18,30,0.65);backdrop-filter:blur(4px)}
+.bsm.open{display:flex;align-items:flex-end;justify-content:center;animation:bsmIn 0.25s ease}
+@keyframes bsmIn{from{opacity:0}to{opacity:1}}
+.bsm-sheet{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:0 0 40px;animation:sheetUp 0.28s cubic-bezier(0.34,1.2,0.64,1)}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.bsm-handle{width:36px;height:4px;background:var(--lighter);border-radius:4px;margin:14px auto 0}
+.bsm-body{padding:0 16px}
+
+/* MONTHLY REPORT */
+.report-card{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:16px;padding:18px;margin-bottom:12px;color:white;position:relative;overflow:hidden}
+.report-orb{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(201,144,10,0.15),transparent 70%);right:-20px;bottom:-20px}
+.report-month{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:8px}
+.report-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:white;margin-bottom:14px}
+
+/* LOADING */
+.loading{text-align:center;padding:60px 20px;color:var(--muted)}
+.spinner{width:30px;height:30px;border:3px solid var(--lighter);border-top-color:var(--gold2);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:12px}
+
+/* FAB */
+.fab{position:fixed;bottom:22px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--navy);border:none;color:var(--gold2);font-size:17px;cursor:pointer;box-shadow:0 4px 20px rgba(15,28,46,0.3);z-index:99;transition:transform 0.2s;display:flex;align-items:center;justify-content:center}
+.fab:active{transform:scale(0.92)}
+.fab.spin{animation:spin 0.7s linear infinite}
+
+/* WA BUTTON */
+.wa-btn{background:#e8f8ef;color:#2e9960;border:none;border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:700;flex-shrink:0}
+
+/* COMPARE */
+.compare-row{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid var(--lighter);font-size:12px}
+.compare-row:last-child{border:none}
+.cmp-diff{font-weight:800;font-size:12px;text-align:center;padding:2px 6px;border-radius:8px}
+.cmp-diff.pos{color:var(--green);background:var(--green-s)}
+.cmp-diff.neg{color:var(--red);background:var(--red-s)}
+.cmp-diff.zero{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="tb-btn" onclick="toggleSB()">☰</button>
+    <div class="tb-logo">👑 CEO Ramez</div>
+    <div class="tb-right">
+      <button class="tb-btn" onclick="toggleGS()" style="font-size:14px">🔍</button>
+      <div class="tb-time" id="tb-time">—</div>
+    </div>
+  </div>
+
+  <!-- SYNC BAR -->
+  <div class="sync-bar">
+    <span id="sync-txt">⏳ Loading...</span>
+    <span id="sync-age" style="color:rgba(255,255,255,0.25)"></span>
+  </div>
+
+  <!-- GLOBAL SEARCH -->
+  <div class="gsearch" id="gsearch">
+    <div class="gsearch-wrap">
+      <span class="gsearch-icon">🔍</span>
+      <input id="gs-inp" placeholder="Search customers, invoices, products..." oninput="renderGS()">
+      <button class="gsearch-close" onclick="closeGS()">✕</button>
+    </div>
+    <div class="gsearch-results" id="gs-results"></div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sb-bg" id="sb-bg" onclick="closeSB()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-orb"></div>
+      <h1>CEO Ramez</h1>
+      <p>RA Jemle · Flora Gift Shop</p>
+      <div class="sb-love">Built with love by Aya ❤️</div>
+    </div>
+    <div class="sb-nav">
+      <button class="sb-item active" id="nav-home" onclick="goTo('home')"><span class="sb-icon">🏠</span>Dashboard</button>
+      <button class="sb-item" id="nav-finance" onclick="goTo('finance')"><span class="sb-icon">💰</span>Finance</button>
+      <button class="sb-item" id="nav-invoices" onclick="goTo('invoices')"><span class="sb-icon">🧾</span>Invoices</button>
+      <button class="sb-item" id="nav-customers" onclick="goTo('customers')"><span class="sb-icon">👥</span>Customers</button>
+      <button class="sb-item" id="nav-products" onclick="goTo('products')"><span class="sb-icon">📦</span>Products</button>
+      <button class="sb-item" id="nav-shipments" onclick="goTo('shipments')"><span class="sb-icon">🚢</span>Shipments</button>
+      <button class="sb-item" id="nav-shop" onclick="goTo('shop')"><span class="sb-icon">🛍️</span>Shop Orders</button>
+      <button class="sb-item" id="nav-flora" onclick="goTo('flora')"><span class="sb-icon">🌸</span>Flora</button>
+      <button class="sb-item" id="nav-bundles" onclick="goTo('bundles')"><span class="sb-icon">🎁</span>Bundles</button>
+      <button class="sb-item" id="nav-collections" onclick="goTo('collections')"><span class="sb-icon">🗂️</span>Collections</button>
+      <button class="sb-item" id="nav-losses" onclick="goTo('losses')"><span class="sb-icon">📉</span>Losses</button>
+      <button class="sb-item" id="nav-inventory" onclick="goTo('inventory')"><span class="sb-icon">🔢</span>Inventory Counts</button>
+      <button class="sb-item" id="nav-report" onclick="goTo('report')"><span class="sb-icon">📅</span>Monthly Report</button>
+    </div>
+    <div class="sb-foot"><div class="sb-sync" id="sb-sync">Tap 🔄 to refresh</div></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="hero">
+        <div class="h-orb1"></div><div class="h-orb2"></div><div class="h-stripe"></div>
+        <div class="h-top">
+          <div class="live-badge"><div class="live-dot"></div><span>Live Dashboard</span></div>
+          <div class="h-dt" id="h-dt">—</div>
+        </div>
+        <div class="h-title">CEO <em>Ramez</em></div>
+        <div class="h-sub">RA Jemle · Flora Gift Shop &nbsp;❤️&nbsp; <span>Built with love by Aya</span></div>
+        <div class="h-stats">
+          <div class="hs" onclick="goTo('finance')"><div class="hs-lbl">Today's Revenue</div><div class="hs-val gold" id="h-today">$0</div></div>
+          <div class="hs" onclick="goTo('finance')"><div class="hs-lbl">This Month</div><div class="hs-val green" id="h-month">$0</div></div>
+          <div class="hs" onclick="goTo('customers')"><div class="hs-lbl">Total Debt</div><div class="hs-val red" id="h-debt">$0</div></div>
+          <div class="hs" onclick="goTo('finance')"><div class="hs-lbl">Month Profit</div><div class="hs-val" id="h-profit">$0</div></div>
+        </div>
+        <div class="daily-card" id="daily-card">
+          <div class="daily-icon">📊</div>
+          <div class="daily-text" id="daily-text">Loading today's summary...</div>
+        </div>
+        <div class="health-card" id="health-card" onclick="goTo('report')">
+          <div class="health-top">
+            <div><div class="health-lbl">Business Health Score</div><div class="health-label" id="health-label">—</div></div>
+            <div class="health-score" id="health-score">—</div>
+          </div>
+          <div class="health-bar"><div class="health-fill" id="health-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div style="height:14px"></div>
+
+      <!-- Smart Alerts -->
+      <div id="alerts-section"></div>
+
+      <!-- KPIs -->
+      <div class="kr3">
+        <div class="kpi" onclick="goTo('invoices')" style="cursor:pointer"><div class="kv" id="k-inv">—</div><div class="kl">Invoices</div></div>
+        <div class="kpi" onclick="goTo('invoices');setF('inv','unpaid',document.querySelector('#inv-fr .fp:nth-child(2)'))" style="cursor:pointer"><div class="kv r" id="k-unpaid">—</div><div class="kl">Unpaid</div></div>
+        <div class="kpi" onclick="goTo('customers')" style="cursor:pointer"><div class="kv" id="k-custs">—</div><div class="kl">Customers</div></div>
+      </div>
+      <div class="kr3">
+        <div class="kpi" onclick="goTo('products')" style="cursor:pointer"><div class="kv" id="k-prods">—</div><div class="kl">Products</div></div>
+        <div class="kpi" onclick="goTo('products');setF('prod','low',document.querySelector('#prod-fr .fp:nth-child(4)'))" style="cursor:pointer"><div class="kv r" id="k-low">—</div><div class="kl">Low/Out</div></div>
+        <div class="kpi" onclick="goTo('shipments')" style="cursor:pointer"><div class="kv a" id="k-transit">—</div><div class="kl">In Transit</div></div>
+      </div>
+
+      <!-- Top Debtors -->
+      <div class="slbl">🔴 Top Debtors</div>
+      <div class="card">
+        <div class="ch" onclick="toggleCard(this)"><div class="ct">💰 Outstanding Debt</div><span class="ca open">›</span></div>
+        <div class="cb open" id="cb-debtors"></div>
+      </div>
+
+      <!-- RA vs Flora -->
+      <div class="slbl">📊 Revenue Split</div>
+      <div class="card">
+        <div class="ch" onclick="toggleCard(this)"><div class="ct">🏪 RA vs 🌸 Flora</div><span class="ca open">›</span></div>
+        <div class="cb open" id="cb-split"></div>
+      </div>
+
+      <!-- Trend -->
+      <div class="slbl">📈 6-Month Trend</div>
+      <div class="card">
+        <div class="ch" onclick="toggleCard(this)"><div class="ct">📈 Revenue Trend</div><span class="ca open">›</span></div>
+        <div class="cb open" id="cb-trend"></div>
+      </div>
+
+      <!-- Recent Invoices -->
+      <div class="slbl">🧾 Recent Invoices</div>
+      <div class="card">
+        <div class="ch" onclick="toggleCard(this)"><div class="ct">🧾 Latest</div><span class="ca open">›</span></div>
+        <div class="cb open" id="cb-recinv"></div>
+      </div>
+
+      <!-- Shipments -->
+      <div class="slbl">🚢 Shipments</div>
+      <div class="card">
+        <div class="ch" onclick="toggleCard(this)"><div class="ct">🚢 All Shipments</div><span class="ca open">›</span></div>
+        <div class="cb open" id="cb-ships"></div>
+      </div>
+
+      <div id="home-load" class="loading"><div class="spinner"></div>Loading your empire...</div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="page" id="page-finance">
+      <div class="ph"><div><div class="pt">💰 Finance</div><div class="ps">Full financial picture</div></div></div>
+      <div id="finance-body"></div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="page" id="page-invoices">
+      <div class="ph"><div><div class="pt">🧾 Invoices</div><div class="ps" id="inv-sub">All invoices</div></div></div>
+      <div class="fr" id="inv-fr">
+        <div class="fp active" onclick="setF('inv','all',this)">All</div>
+        <div class="fp" onclick="setF('inv','unpaid',this)">Unpaid</div>
+        <div class="fp" onclick="setF('inv','confirmed',this)">Confirmed</div>
+        <div class="fp" onclick="setF('inv','shipped',this)">Shipped</div>
+        <div class="fp" onclick="setF('inv','partial',this)">Partial</div>
+        <div class="fp" onclick="setF('inv','paid',this)">Paid</div>
+        <div class="fp" onclick="setF('inv','cancelled',this)">Cancelled</div>
+      </div>
+      <div class="sw"><span class="si-icon">🔍</span><input class="si" id="inv-search" placeholder="Search customer or #..." oninput="renderInvoices()"></div>
+      <div id="inv-body"></div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="page" id="page-customers">
+      <div class="ph"><div><div class="pt">👥 Customers</div><div class="ps" id="cust-sub">All customers</div></div></div>
+      <div class="fr" id="cust-fr">
+        <div class="fp active" onclick="setF('cust','all',this)">All</div>
+        <div class="fp" onclick="setF('cust','debt',this)">💰 Debt</div>
+        <div class="fp" onclick="setF('cust','vip',this)">⭐ VIP</div>
+        <div class="fp" onclick="setF('cust','shop',this)">🛍️ Shop</div>
+      </div>
+      <div class="sw"><span class="si-icon">🔍</span><input class="si" id="cust-search" placeholder="Search customers..." oninput="renderCustomers()"></div>
+      <div id="cust-body"></div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="ph"><div><div class="pt">📦 Products</div><div class="ps" id="prod-sub">All products</div></div></div>
+      <div class="fr" id="prod-fr">
+        <div class="fp active" onclick="setF('prod','all',this)">All</div>
+        <div class="fp" onclick="setF('prod','ra',this)">🏪 RA</div>
+        <div class="fp" onclick="setF('prod','flora',this)">🌸 Flora</div>
+        <div class="fp" onclick="setF('prod','low',this)">⚠️ Low</div>
+        <div class="fp" onclick="setF('prod','out',this)">🚫 Out</div>
+      </div>
+      <div class="sw"><span class="si-icon">🔍</span><input class="si" id="prod-search" placeholder="Search products..." oninput="renderProducts()"></div>
+      <div id="prod-body"></div>
+    </div>
+
+    <!-- SHIPMENTS -->
+    <div class="page" id="page-shipments">
+      <div class="ph"><div><div class="pt">🚢 Shipments</div><div class="ps">Tap for details</div></div></div>
+      <div id="ship-body"></div>
+    </div>
+
+    <!-- SHOP ORDERS -->
+    <div class="page" id="page-shop">
+      <div class="ph"><div><div class="pt">🛍️ Shop Orders</div><div class="ps" id="shop-sub">Online orders</div></div></div>
+      <div class="fr" id="shop-fr">
+        <div class="fp active" onclick="setF('shop','all',this)">All</div>
+        <div class="fp" onclick="setF('shop','confirmed',this)">Confirmed</div>
+        <div class="fp" onclick="setF('shop','shipped',this)">Shipped</div>
+        <div class="fp" onclick="setF('shop','delivered',this)">Delivered</div>
+        <div class="fp" onclick="setF('shop','cancelled',this)">Cancelled</div>
+      </div>
+      <div id="shop-body"></div>
+    </div>
+
+    <!-- FLORA -->
+    <div class="page" id="page-flora">
+      <div class="ph"><div><div class="pt">🌸 Flora</div><div class="ps">Flora Gift Shop</div></div></div>
+      <div id="flora-body"></div>
+    </div>
+
+    <!-- BUNDLES -->
+    <div class="page" id="page-bundles">
+      <div class="ph"><div><div class="pt">🎁 Bundles</div><div class="ps">Gift bundles you created</div></div></div>
+      <div id="bundles-body"></div>
+    </div>
+
+    <!-- COLLECTIONS -->
+    <div class="page" id="page-collections">
+      <div class="ph"><div><div class="pt">🗂️ Collections</div><div class="ps">Product groups</div></div></div>
+      <div id="coll-body"></div>
+    </div>
+
+    <!-- LOSSES -->
+    <div class="page" id="page-losses">
+      <div class="ph"><div><div class="pt">📉 Losses</div><div class="ps">Recorded losses</div></div></div>
+      <div id="losses-body"></div>
+    </div>
+
+    <!-- INVENTORY COUNTS -->
+    <div class="page" id="page-inventory">
+      <div class="ph"><div><div class="pt">🔢 Inventory Counts</div><div class="ps">Tap to view · Select 2 to compare</div></div></div>
+      <div id="inv-count-body"></div>
+    </div>
+
+    <!-- MONTHLY REPORT -->
+    <div class="page" id="page-report">
+      <div class="ph"><div><div class="pt">📅 Monthly Report</div><div class="ps" id="report-sub">This month</div></div></div>
+      <div id="report-body"></div>
+    </div>
+
+  </div>
+
+  <!-- MODALS -->
+  <div class="bsm" id="modal-inv" onclick="if(event.target===this)closeM('modal-inv')">
+    <div class="bsm-sheet"><div class="bsm-handle"></div><div class="bsm-body" id="modal-inv-body"></div></div>
+  </div>
+  <div class="bsm" id="modal-cust" onclick="if(event.target===this)closeM('modal-cust')">
+    <div class="bsm-sheet"><div class="bsm-handle"></div><div class="bsm-body" id="modal-cust-body"></div></div>
+  </div>
+  <div class="bsm" id="modal-prod" onclick="if(event.target===this)closeM('modal-prod')">
+    <div class="bsm-sheet"><div class="bsm-handle"></div><div class="bsm-body" id="modal-prod-body"></div></div>
+  </div>
+  <div class="bsm" id="modal-ship" onclick="if(event.target===this)closeM('modal-ship')">
+    <div class="bsm-sheet"><div class="bsm-handle"></div><div class="bsm-body" id="modal-ship-body"></div></div>
+  </div>
+  <div class="bsm" id="modal-count" onclick="if(event.target===this)closeM('modal-count')">
+    <div class="bsm-sheet"><div class="bsm-handle"></div><div class="bsm-body" id="modal-count-body"></div></div>
+  </div>
+  <div class="bsm" id="modal-compare" onclick="if(event.target===this)closeM('modal-compare')">
+    <div class="bsm-sheet"><div class="bsm-handle"></div><div class="bsm-body" id="modal-compare-body"></div></div>
+  </div>
+
+  <button class="fab" id="fab" onclick="loadData()">🔄</button>
+</div>
+
+<script>
+const FB='https://ra-shop-3e01d-default-rtdb.firebaseio.com';
+let D=null;
+let _invF='all',_custF='all',_prodF='all',_shopF='all';
+let _activePage='home';
+let _selectedCounts=[];
+
+// CLOCK
+function tick(){
+  const n=new Date();
+  const s=n.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'})+' · '+n.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+  const el=document.getElementById('h-dt'),tb=document.getElementById('tb-time');
+  if(el)el.textContent=s;
+  if(tb)tb.textContent=n.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(tick,1000);tick();
+
+// SYNC AGE
+function updateSyncAge(){
+  if(!D)return;
+  const mins=Math.round((Date.now()-new Date(D.updatedAt||Date.now()).getTime())/60000);
+  const txt=mins<1?'Just now':mins===1?'1 min ago':mins<60?mins+' mins ago':Math.round(mins/60)+'h ago';
+  const el=document.getElementById('sync-txt');if(el)el.textContent='🔄 Last synced: '+txt;
+  const sb=document.getElementById('sb-sync');if(sb)sb.textContent='Updated: '+(D.updatedAtStr||'—');
+}
+setInterval(updateSyncAge,30000);
+
+// SIDEBAR
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sb-bg').classList.toggle('open');}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-bg').classList.remove('open');}
+
+// NAV
+function goTo(id){
+  _activePage=id;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id);if(nb)nb.classList.add('active');
+  document.getElementById('main').scrollTop=0;
+  closeSB();
+  if(D)renderPage(id);
+}
+
+// CARD TOGGLE
+function toggleCard(h){const b=h.nextElementSibling,a=h.querySelector('.ca');b.classList.toggle('open');a.classList.toggle('open');}
+
+// MODAL
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function openM(id){document.getElementById(id).classList.add('open');}
+
+// GLOBAL SEARCH
+function toggleGS(){const el=document.getElementById('gsearch');el.style.display=el.style.display==='none'||!el.style.display?'block':'none';if(el.style.display==='block')setTimeout(()=>document.getElementById('gs-inp')?.focus(),100);}
+function closeGS(){document.getElementById('gsearch').style.display='none';document.getElementById('gs-inp').value='';document.getElementById('gs-results').innerHTML='';}
+function renderGS(){
+  const q=(document.getElementById('gs-inp')?.value||'').toLowerCase().trim();
+  const el=document.getElementById('gs-results');
+  if(!q||!D){el.innerHTML='';return;}
+  const r=[];
+  (D.customers||[]).filter(c=>(c.name||'').toLowerCase().includes(q)).slice(0,4).forEach(c=>{
+    r.push(`<div class="gs-item" onclick="openCustDetail('${c.id}');closeGS()">
+      <div class="gs-av">${c.name.charAt(0).toUpperCase()}</div>
+      <div><div class="gs-name">${c.name}</div><div class="gs-sub">👥 Customer ${c.debt>0?'· owes '+fmt(c.debt):''}</div></div>
+    </div>`);
+  });
+  (D.invoices||[]).filter(i=>(i.customer||'').toLowerCase().includes(q)||(i.num||'').toLowerCase().includes(q)).slice(0,4).forEach(i=>{
+    r.push(`<div class="gs-item" onclick="openInvDetail('${i.id}');closeGS()">
+      <div class="gs-av">🧾</div>
+      <div><div class="gs-name">${i.num||i.id} · ${i.customer}</div><div class="gs-sub">${fmt(i.total)} · ${i.status} · ${i.date||''}</div></div>
+    </div>`);
+  });
+  (D.products||[]).filter(p=>(p.name||'').toLowerCase().includes(q)).slice(0,4).forEach(p=>{
+    r.push(`<div class="gs-item" onclick="openProdDetail('${p.id}');closeGS()">
+      <div class="gs-av">${p.photo?`<img src="${p.photo}">`:(p.emoji||'📦')}</div>
+      <div><div class="gs-name">${p.name}</div><div class="gs-sub">📦 ${p.totalStock||0} units · ${p.category||''}</div></div>
+    </div>`);
+  });
+  el.innerHTML=r.length?r.join(''):`<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.3);font-size:12px">No results for "${q}"</div>`;
+}
+
+// LOAD DATA
+async function loadData(){
+  const fab=document.getElementById('fab');fab.classList.add('spin');
+  try{
+    const res=await fetch(`${FB}/ceo_dashboard.json`);
+    D=await res.json();
+    if(!D){document.getElementById('home-load').innerHTML='<div class="empty">📊 No data yet. Ask Aya to open her app first 💕</div>';return;}
+    document.getElementById('home-load').style.display='none';
+    updateSyncAge();
+    renderAll();
+  }catch(e){
+    document.getElementById('home-load').innerHTML=`<div class="empty">⚠️ Could not connect.<br>Ask Aya to open Blossom first 💕<br><br><button onclick="loadData()" style="background:var(--navy);color:var(--gold2);border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🔄 Retry</button></div>`;
+  }finally{fab.classList.remove('spin');}
+}
+
+function renderAll(){
+  const f=D.finance||{},c=D.counts||{},dl=D.daily||{};
+  // Hero
+  document.getElementById('h-today').textContent=fmt(f.todayRevenue);
+  document.getElementById('h-month').textContent=fmt(f.monthRevenue);
+  document.getElementById('h-debt').textContent=fmt(f.totalDebt);
+  const hp=document.getElementById('h-profit');
+  hp.textContent=fmt(f.monthProfit);hp.className='hs-val '+((f.monthProfit||0)>=0?'green':'red');
+  // Daily summary
+  document.getElementById('daily-text').innerHTML=`Today: <strong>${dl.todayInvs||0} invoices</strong> · <strong>${fmt(f.todayRevenue)} revenue</strong> · <strong>${dl.todayCusts||0} new customers</strong>`;
+  // Health score
+  const hs=f.healthScore||0,hl=f.healthLabel||'—';
+  document.getElementById('health-score').textContent=hs+'/100';
+  document.getElementById('health-label').textContent=hl;
+  const hfill=document.getElementById('health-fill');
+  const hcolor=hs>=80?'linear-gradient(90deg,var(--green),#4ade80)':hs>=65?'linear-gradient(90deg,var(--gold),var(--gold2))':hs>=50?'linear-gradient(90deg,var(--amber),#fbbf24)':'linear-gradient(90deg,var(--red),#f87171)';
+  setTimeout(()=>{if(hfill){hfill.style.background=hcolor;hfill.style.width=hs+'%';}},300);
+  // KPIs
+  document.getElementById('k-inv').textContent=c.totalInvoices||0;
+  document.getElementById('k-unpaid').textContent=c.unpaidInvoices||0;
+  document.getElementById('k-custs').textContent=c.totalCustomers||0;
+  document.getElementById('k-prods').textContent=c.totalProducts||0;
+  document.getElementById('k-low').textContent=(c.lowStockProducts||0)+(c.outOfStockProducts||0);
+  document.getElementById('k-transit').textContent=c.shipmentsInTransit||0;
+  // Home sections
+  renderAlerts();renderDebtors();renderSplit();renderTrend();renderRecentInv();renderShipsHome();
+  if(_activePage!=='home')renderPage(_activePage);
+}
+
+function renderPage(id){
+  if(id==='finance')renderFinance();
+  else if(id==='invoices')renderInvoices();
+  else if(id==='customers')renderCustomers();
+  else if(id==='products')renderProducts();
+  else if(id==='shipments')renderShipments();
+  else if(id==='shop')renderShop();
+  else if(id==='flora')renderFlora();
+  else if(id==='bundles')renderBundles();
+  else if(id==='collections')renderCollections();
+  else if(id==='losses')renderLosses();
+  else if(id==='inventory')renderInventory();
+  else if(id==='report')renderReport();
+}
+
+const fmt=n=>'$'+(n||0).toLocaleString('en',{minimumFractionDigits:0,maximumFractionDigits:0});
+const stC={paid:'bg',unpaid:'br',shipped:'bb',confirmed:'bg',partial:'ba',cancelled:'bm',ordered:'ba',onway:'bb',arrived:'bg',processing:'ba',delivered:'bg',pending:'ba'};
+const stL={ordered:'⏳ Ordered',onway:'🚢 On Way',arrived:'✅ Arrived'};
+function setF(type,val,el){
+  if(type==='inv')_invF=val;else if(type==='cust')_custF=val;else if(type==='prod')_prodF=val;else if(type==='shop')_shopF=val;
+  document.querySelectorAll('#'+type+'-fr .fp').forEach(p=>p.classList.remove('active'));el.classList.add('active');
+  if(type==='inv')renderInvoices();else if(type==='cust')renderCustomers();else if(type==='prod')renderProducts();else if(type==='shop')renderShop();
+}
+function wa(phone){return (phone||'').replace(/\D/g,'');}
+
+// SMART ALERTS
+function renderAlerts(){
+  if(!D)return;
+  const alerts=[];
+  const unpaid=(D.invoices||[]).filter(i=>i.status==='unpaid'||i.status==='shipped');
+  const old30=unpaid.filter(i=>{const d=new Date(i.date+'T12:00:00');return(Date.now()-d.getTime())>30*86400000;});
+  if(old30.length)alerts.push({icon:'⚠️',text:`${old30.length} invoice${old30.length>1?'s':''} unpaid for 30+ days — ${fmt(old30.reduce((s,i)=>s+(i.total||0),0))} at risk`,color:'var(--amber-s)',tc:'var(--amber)',page:'invoices'});
+  const outProds=(D.products||[]).filter(p=>(p.totalStock||0)===0);
+  if(outProds.length)alerts.push({icon:'🚫',text:`${outProds.length} product${outProds.length>1?'s':''} out of stock`,color:'var(--red-s)',tc:'var(--red)',page:'products'});
+  const lowProds=(D.products||[]).filter(p=>(p.totalStock||0)>0&&(p.totalStock||0)<5);
+  if(lowProds.length)alerts.push({icon:'📦',text:`${lowProds.length} product${lowProds.length>1?'s':''} running low on stock`,color:'var(--amber-s)',tc:'var(--amber)',page:'products'});
+  const transit=(D.shipments||[]).filter(s=>s.status==='onway');
+  if(transit.length)alerts.push({icon:'🚢',text:`${transit.length} shipment${transit.length>1?'s':''} on the way`,color:'var(--blue-s)',tc:'var(--blue)',page:'shipments'});
+  const el=document.getElementById('alerts-section');
+  if(!el)return;
+  if(!alerts.length){el.innerHTML='';return;}
+  el.innerHTML=`<div class="slbl">🔔 Alerts</div><div class="alerts-wrap">${alerts.map(a=>`
+    <div class="alert-item" style="background:${a.color}" onclick="goTo('${a.page}')">
+      <div class="alert-icon">${a.icon}</div>
+      <div class="alert-text" style="color:${a.tc}">${a.text}</div>
+      <div class="alert-arr">›</div>
+    </div>`).join('')}</div>`;
+}
+
+// DEBTORS
+function renderDebtors(){
+  const el=document.getElementById('cb-debtors');if(!el)return;
+  el.innerHTML=(D.topDebtors||[]).map(d=>{
+    const w=wa(d.phone);
+    const ageHtml=d.debtDays>90?`<span class="age-90">90d+</span>`:d.debtDays>60?`<span class="age-60">60d+</span>`:d.debtDays>30?`<span class="age-30">30d+</span>`:'';
+    return `<div class="lr">
+      <div class="lav">${d.name.charAt(0).toUpperCase()}</div>
+      <div class="lif"><div class="ln">${d.name}</div><div class="lsub">${d.phone||''} ${ageHtml}</div></div>
+      <div style="display:flex;align-items:center;gap:7px">
+        ${w?`<button class="wa-btn" onclick="window.open('https://wa.me/961${w}','_blank')">💬</button>`:''}
+        <div class="lval"><div class="lv r">${fmt(d.debt)}</div></div>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">No outstanding debt 🎉</div>';
+}
+
+// SPLIT
+function renderSplit(){
+  const el=document.getElementById('cb-split');if(!el)return;
+  const invs=D.invoices||[];
+  const raRev=invs.filter(i=>i.store==='ra'&&i.status==='paid').reduce((s,i)=>s+(i.total||0),0);
+  const flRev=invs.filter(i=>i.store==='flora'&&i.status==='paid').reduce((s,i)=>s+(i.total||0),0);
+  const tot=raRev+flRev||1;
+  const raPct=Math.round((raRev/tot)*100),flPct=100-raPct;
+  el.innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:700">🏪 RA Jemle</span><span style="font-size:12px;font-weight:700;color:var(--navy)">${fmt(raRev)} <span style="color:var(--muted);font-weight:400">${raPct}%</span></span></div>
+      <div class="prog"><div class="prog-f" style="width:${raPct}%;background:linear-gradient(90deg,var(--navy3),var(--navy4))"></div></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:700">🌸 Flora</span><span style="font-size:12px;font-weight:700;color:var(--rose)">${fmt(flRev)} <span style="color:var(--muted);font-weight:400">${flPct}%</span></span></div>
+      <div class="prog"><div class="prog-f" style="width:${flPct}%;background:linear-gradient(90deg,var(--rose),#f4a0b0)"></div></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:10px;height:28px;border-radius:8px;overflow:hidden">
+      <div style="flex:${raPct};background:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;min-width:20px">${raPct>15?raPct+'%':''}</div>
+      <div style="flex:${flPct};background:var(--rose);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;min-width:20px">${flPct>15?flPct+'%':''}</div>
+    </div>`;
+}
+
+// TREND
+function renderTrend(){
+  const el=document.getElementById('cb-trend');if(!el)return;
+  const trend=D.finance?.trend||[];if(!trend.length){el.innerHTML='<div class="empty">No data yet</div>';return;}
+  const max=Math.max(...trend.map(m=>m.rev),1);
+  el.innerHTML=`<div class="bar-chart">${trend.map(m=>{
+    const h=Math.max(3,Math.round((m.rev/max)*72));
+    const isMax=m.rev===max;
+    return `<div class="bar-col">
+      <div class="bar-val">${m.rev>0?'$'+Math.round(m.rev/1000)+'k':''}</div>
+      <div class="bar-fill" style="height:${h}px;background:${isMax?'linear-gradient(180deg,var(--gold2),var(--gold))':'linear-gradient(180deg,var(--navy3),var(--navy4))'}"></div>
+      <div class="bar-lbl" style="color:${isMax?'var(--gold)':'var(--muted)'}">${m.lbl}</div>
+    </div>`;
+  }).join('')}</div><div style="text-align:center;font-size:10px;color:var(--muted)">Based on paid invoices</div>`;
+}
+
+// RECENT INVOICES
+function renderRecentInv(){
+  const el=document.getElementById('cb-recinv');if(!el)return;
+  const list=[...(D.invoices||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,8);
+  el.innerHTML=list.map(i=>`
+    <div class="lr tap" onclick="openInvDetail('${i.id}')">
+      <div class="lav">${i.customer?.charAt(0)?.toUpperCase()||'?'}</div>
+      <div class="lif"><div class="ln">${i.customer||'Unknown'}</div><div class="lsub">${i.num||i.id} · ${i.date||''}</div></div>
+      <div class="lval"><div class="lv">${fmt(i.total)}</div><span class="b ${stC[i.status]||'bm'}" style="margin-top:3px;display:block;text-align:right">${i.status}</span></div>
+    </div>`).join('')||'<div class="empty">No invoices yet</div>';
+}
+
+// SHIPS HOME
+function renderShipsHome(){
+  const el=document.getElementById('cb-ships');if(!el)return;
+  el.innerHTML=(D.shipments||[]).map(s=>`
+    <div class="lr tap" onclick="openShipDetail('${s.id}')">
+      <div class="lav" style="font-size:20px">${s.status==='arrived'?'✅':s.status==='onway'?'🚢':'⏳'}</div>
+      <div class="lif"><div class="ln">${s.name}</div><div class="lsub">${s.products?.length||s.prodCount||0} products · ${s.supplier||''}</div></div>
+      <div class="lval"><div class="lv gold">${fmt(s.cost)}</div><span class="b ${stC[s.status]||'bm'}" style="margin-top:3px;display:block;text-align:right">${s.status}</span></div>
+    </div>`).join('')||'<div class="empty">No shipments yet</div>';
+}
+
+// FINANCE
+function renderFinance(){
+  if(!D)return;
+  const f=D.finance||{};
+  const exps=D.expenses||[];
+  const byC={};exps.forEach(e=>{const c=e.category||'Other';byC[c]=(byC[c]||0)+(e.amount||0);});
+  const cats=Object.entries(byC).sort((a,b)=>b[1]-a[1]);
+  const totExp=exps.reduce((s,e)=>s+(e.amount||0),0);
+  document.getElementById('finance-body').innerHTML=`
+    <div class="kr"><div class="kpi"><div class="kv g" style="font-size:20px">${fmt(f.monthRevenue)}</div><div class="kl">Month Revenue</div></div><div class="kpi"><div class="kv ${(f.monthProfit||0)>=0?'g':'r'}" style="font-size:20px">${fmt(f.monthProfit)}</div><div class="kl">Month Profit</div></div></div>
+    <div class="kr"><div class="kpi"><div class="kv r" style="font-size:20px">${fmt(f.totalExpenses)}</div><div class="kl">Expenses</div></div><div class="kpi"><div class="kv r" style="font-size:20px">${fmt(f.totalDebt)}</div><div class="kl">Total Debt</div></div></div>
+    <div class="kr"><div class="kpi"><div class="kv r" style="font-size:18px">${fmt(f.totalLosses)}</div><div class="kl">Losses</div></div><div class="kpi"><div class="kv gold" style="font-size:20px">${fmt(f.todayRevenue)}</div><div class="kl">Today</div></div></div>
+    <div class="kr"><div class="kpi"><div class="kv" style="font-size:18px">${fmt(f.adSpend)}</div><div class="kl">Ad Spend</div></div><div class="kpi"><div class="kv g" style="font-size:18px">${fmt(f.adRevenue)}</div><div class="kl">Ad Revenue</div></div></div>
+    ${cats.length?`<div class="slbl">💸 Expenses Breakdown</div>
+    <div class="card"><div class="ch" onclick="toggleCard(this)"><div class="ct">📊 By Category</div><span class="ca open">›</span></div>
+    <div class="cb open">${cats.map(([cat,amt])=>{const pct=totExp>0?Math.round((amt/totExp)*100):0;return`<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:600">${cat}</span><span style="font-size:12px;font-weight:700;color:var(--red)">${fmt(amt)} <span style="color:var(--muted)">${pct}%</span></span></div><div class="prog"><div class="prog-f" style="width:${pct}%;background:linear-gradient(90deg,var(--red),#f87171)"></div></div></div>`;}).join('')}</div></div>`:''}
+    <div class="slbl">🚢 Capital Recovery</div>
+    ${(D.shipments||[]).filter(s=>s.status==='arrived').map(s=>{
+      const pct=s.cost>0?Math.min(100,Math.round(((s.manualCollected||0)/s.cost)*100)):0;
+      return`<div class="card"><div class="ch" onclick="toggleCard(this)"><div class="ct">📦 ${s.name} <span style="font-size:11px;font-weight:400;color:${pct>=100?'var(--green)':pct>50?'var(--amber)':'var(--red)'}">${pct}%</span></div><span class="ca">›</span></div>
+      <div class="cb"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px"><span>Cost: ${fmt(s.cost)}</span><span>Recovered: ${fmt(s.manualCollected)}</span></div><div class="prog"><div class="prog-f" style="width:${pct}%"></div></div>${pct>=100?`<div style="font-size:11px;color:var(--green);font-weight:700;margin-top:6px">✅ Capital fully recovered!</div>`:''}</div></div>`;
+    }).join('')||'<div class="card"><div class="cb" style="display:block;padding:16px"><div class="empty" style="padding:0">No arrived shipments</div></div></div>'}
+    <div class="slbl">📱 Ad Campaigns</div>
+    ${(D.adCampaigns||[]).length?`<div class="card"><div class="ch" onclick="toggleCard(this)"><div class="ct">📱 Campaigns</div><span class="ca open">›</span></div>
+    <div class="cb open">${(D.adCampaigns||[]).map(a=>`<div class="lr"><div class="lav" style="font-size:18px">📱</div><div class="lif"><div class="ln">${a.name} <span style="font-size:10px;color:var(--muted)">${a.platform||''}</span></div><div class="lsub">Spent: ${fmt(a.spent)} · Revenue: ${fmt(a.revenue)}</div></div><div class="lval"><div class="lv ${a.roi>=0?'g':'r'}">${a.roi>=0?'+':''}${a.roi}% ROI</div></div></div>`).join('')}</div></div>`:'<div class="card"><div class="cb" style="display:block;padding:14px"><div class="empty" style="padding:0">No ad campaigns yet</div></div></div>'}`;
+}
+
+// INVOICES
+function renderInvoices(){
+  if(!D)return;
+  const q=(document.getElementById('inv-search')?.value||'').toLowerCase();
+  let list=[...(D.invoices||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(_invF!=='all')list=list.filter(i=>i.status===_invF);
+  if(q)list=list.filter(i=>(i.customer||'').toLowerCase().includes(q)||(i.num||'').toLowerCase().includes(q));
+  document.getElementById('inv-sub').textContent=list.length+' invoices';
+  document.getElementById('inv-body').innerHTML=list.length?`<div class="card"><div class="cb" style="display:block;padding-top:4px">${list.map(i=>`
+    <div class="lr tap" onclick="openInvDetail('${i.id}')">
+      <div class="lav">${i.customer?.charAt(0)?.toUpperCase()||'?'}</div>
+      <div class="lif"><div class="ln">${i.customer||'Unknown'}</div><div class="lsub">${i.num||i.id} · ${i.date||''} · ${i.store||'ra'}</div></div>
+      <div class="lval"><div class="lv">${fmt(i.total)}</div><span class="b ${stC[i.status]||'bm'}" style="display:block;margin-top:2px;text-align:right">${i.status}</span>${i.status==='partial'?`<div style="font-size:9px;color:var(--amber)">Paid:${fmt(i.paidAmt)}</div>`:''}</div>
+    </div>`).join('')}</div></div>`:'<div class="empty">No invoices found</div>';
+}
+
+// CUSTOMERS
+function renderCustomers(){
+  if(!D)return;
+  const q=(document.getElementById('cust-search')?.value||'').toLowerCase();
+  let list=[...(D.customers||[])].sort((a,b)=>(b.debt||0)-(a.debt||0));
+  if(_custF==='debt')list=list.filter(c=>c.debt>0);
+  else if(_custF==='vip')list=list.filter(c=>c.vip);
+  else if(_custF==='shop')list=list.filter(c=>c.fromShop);
+  if(q)list=list.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.phone||'').includes(q));
+  document.getElementById('cust-sub').textContent=list.length+' · Debt: '+fmt(list.reduce((s,c)=>s+(c.debt||0),0));
+  document.getElementById('cust-body').innerHTML=list.length?`<div class="card"><div class="cb" style="display:block;padding-top:4px">${list.map(c=>{
+    const w=wa(c.phone);
+    const ageHtml=c.debtDays>90?`<span class="age-90">90d+</span>`:c.debtDays>60?`<span class="age-60">60d+</span>`:c.debtDays>30?`<span class="age-30">30d+</span>`:'';
+    return`<div class="lr tap" onclick="openCustDetail('${c.id}')">
+      <div class="lav" style="${c.vip?'background:linear-gradient(135deg,#fef3c7,#fde68a);color:#b45309':''}">${c.vip?'⭐':c.name?.charAt(0)?.toUpperCase()||'?'}</div>
+      <div class="lif"><div class="ln">${c.name} ${c.fromShop?'🛍️':''}</div><div class="lsub">${c.phone||'—'} ${c.city?'📍'+c.city:''} ${ageHtml}</div></div>
+      <div style="display:flex;align-items:center;gap:6px">${w?`<button class="wa-btn" onclick="event.stopPropagation();window.open('https://wa.me/961${w}','_blank')">💬</button>`:''}
+      <div>${c.debt>0?`<div class="lv r">${fmt(c.debt)}</div>`:`<div style="font-size:11px;font-weight:700;color:var(--green)">✓</div>`}</div></div>
+    </div>`;
+  }).join('')}</div></div>`:'<div class="empty">No customers found</div>';
+}
+
+// PRODUCTS
+function renderProducts(){
+  if(!D)return;
+  const q=(document.getElementById('prod-search')?.value||'').toLowerCase();
+  let list=[...(D.products||[])].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  if(_prodF==='ra')list=list.filter(p=>p.store==='ra'||p.store==='both');
+  else if(_prodF==='flora')list=list.filter(p=>p.store==='flora'||p.store==='both');
+  else if(_prodF==='low')list=list.filter(p=>(p.totalStock||0)>0&&(p.totalStock||0)<5);
+  else if(_prodF==='out')list=list.filter(p=>(p.totalStock||0)===0);
+  if(q)list=list.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.category||'').toLowerCase().includes(q));
+  document.getElementById('prod-sub').textContent=list.length+' products';
+  if(!list.length){document.getElementById('prod-body').innerHTML='<div class="empty">No products found</div>';return;}
+  document.getElementById('prod-body').innerHTML=`<div class="pg">${list.map(p=>{
+    const out=(p.totalStock||0)===0,low=(p.totalStock||0)<5&&!out;
+    return`<div class="pc" onclick="openProdDetail('${p.id}')">
+      <div class="pi">${p.photo?`<img src="${p.photo}">`:(p.emoji||'📦')}${out?'<div class="plow out">Out</div>':low?'<div class="plow low">Low</div>':''}</div>
+      <div class="pb">
+        <div class="pn">${p.name}</div>
+        <div class="ps2 ${out?'r':low?'a':''}" style="color:${out?'var(--red)':low?'var(--amber)':'var(--muted)'}">${p.totalStock||0} units</div>
+        <div class="pp">${p.priceRAPiece?'$'+p.priceRAPiece:''} ${p.priceFlora?'🌸$'+p.priceFlora:''}</div>
+        ${(p.variants||[]).length>1?`<div class="vchips">${(p.variants||[]).slice(0,3).map(v=>{const hd=v.colorHex&&!['#ede6e8','#f4a0b0','','#ffffff'].includes(v.colorHex);return`<div class="vchip">${v.photo?`<img class="vimg" src="${v.photo}">`:hd?`<div class="vdot" style="background:${v.colorHex}"></div>`:''}<span style="color:var(--muted)">${(v.ra||0)+(v.flora||0)}</span></div>`;}).join('')}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// SHIPMENTS
+function renderShipments(){
+  if(!D)return;
+  const ships=[...(D.shipments||[])].sort((a,b)=>{const o={ordered:0,onway:1,arrived:2};return(o[a.status]||0)-(o[b.status]||0);});
+  document.getElementById('ship-body').innerHTML=ships.map(s=>`
+    <div class="card" onclick="openShipDetail('${s.id}')" style="cursor:pointer">
+      <div style="padding:14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+          <div><div style="font-size:14px;font-weight:700;color:var(--ink)">${s.name}</div>${s.supplier?`<div style="font-size:11px;color:var(--muted);margin-top:2px">🏭 ${s.supplier}</div>`:''}</div>
+          <span class="b ${stC[s.status]||'bm'}">${stL[s.status]||s.status}</span>
+        </div>
+        <div class="timeline">
+          ${['ordered','onway','arrived'].map((step,i)=>{
+            const done=s.status==='arrived'||(s.status==='onway'&&i<=1)||(s.status==='ordered'&&i===0);
+            const active=s.status===step;
+            const icons={ordered:'📋',onway:'🚢',arrived:'✅'};
+            const labels={ordered:'Ordered',onway:'On Way',arrived:'Arrived'};
+            const dates={ordered:s.orderDate,onway:'',arrived:s.arrivedDate};
+            return`<div class="tl-step">
+              ${i>0?`<div class="tl-line ${done&&i<=(['ordered','onway','arrived'].indexOf(s.status))?'done':''}"></div>`:''}
+              <div class="tl-dot ${active?'active':done?'done':'pending'}">${icons[step]}</div>
+              <div class="tl-label">${labels[step]}</div>
+              ${dates[step]?`<div class="tl-date">${dates[step]}</div>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">
+          <div style="background:var(--lighter);border-radius:10px;padding:8px;text-align:center"><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase">Cost</div><div style="font-size:14px;font-weight:800;color:var(--ink);margin-top:2px">${fmt(s.cost)}</div></div>
+          <div style="background:var(--lighter);border-radius:10px;padding:8px;text-align:center"><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase">Products</div><div style="font-size:14px;font-weight:800;color:var(--ink);margin-top:2px">${(s.products||[]).length||0}</div></div>
+          <div style="background:var(--lighter);border-radius:10px;padding:8px;text-align:center"><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase">Recovery</div><div style="font-size:14px;font-weight:800;margin-top:2px;color:${s.manualCollected>=s.cost&&s.cost>0?'var(--green)':s.manualCollected>0?'var(--amber)':'var(--muted)'}">${s.cost>0?Math.min(100,Math.round(((s.manualCollected||0)/s.cost)*100))+'%':'—'}</div></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:right">Tap for full details ›</div>
+      </div>
+    </div>`).join('')||'<div class="empty">No shipments yet</div>';
+}
+
+// SHOP ORDERS
+function renderShop(){
+  if(!D)return;
+  const orders=[...(D.invoices||[]).filter(i=>i.fromShop||false),...(D.floraOrders||[]).filter(o=>o.fromShop||false)];
+  document.getElementById('shop-sub').textContent=orders.length+' orders';
+  document.getElementById('shop-body').innerHTML=orders.length?`<div class="card"><div class="cb" style="display:block;padding-top:4px">${orders.map(o=>`
+    <div class="lr"><div class="lav" style="font-size:18px">🛍️</div>
+    <div class="lif"><div class="ln">${o.customer||'Customer'}</div><div class="lsub">${o.num||o.id} · ${o.date||''}</div></div>
+    <div class="lval"><div class="lv">${fmt(o.total)}</div><span class="b ${stC[o.status]||'bm'}" style="display:block;margin-top:2px;text-align:right">${o.status||'—'}</span></div>
+    </div>`).join('')}</div></div>`:'<div class="empty">No shop orders found</div>';
+}
+
+// FLORA
+function renderFlora(){
+  if(!D)return;
+  const orders=[...(D.floraOrders||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const total=orders.reduce((s,o)=>s+(o.total||0),0);
+  document.getElementById('flora-body').innerHTML=`
+    <div class="kr"><div class="kpi"><div class="kv">${orders.length}</div><div class="kl">Orders</div></div><div class="kpi"><div class="kv g">${fmt(total)}</div><div class="kl">Revenue</div></div></div>
+    ${orders.length?`<div class="card"><div class="ch" onclick="toggleCard(this)"><div class="ct">🌸 All Orders</div><span class="ca open">›</span></div>
+    <div class="cb open">${orders.map(o=>`<div class="lr tap" onclick="openInvDetail('${o.id}')">
+      <div class="lav" style="background:var(--rose-s);color:var(--rose)">🌸</div>
+      <div class="lif"><div class="ln">${o.customer||'Customer'}</div><div class="lsub">${o.num||o.id} · ${o.date||''}</div></div>
+      <div class="lval"><div class="lv">${fmt(o.total)}</div><span class="b ${stC[o.status]||'bm'}" style="display:block;margin-top:2px;text-align:right">${o.status||'—'}</span></div>
+    </div>`).join('')}</div></div>`:'<div class="empty">No Flora orders yet 🌸</div>'}`;
+}
+
+// BUNDLES
+function renderBundles(){
+  if(!D)return;
+  const buns=D.bundles||[];
+  document.getElementById('bundles-body').innerHTML=buns.length?buns.map(b=>`
+    <div class="card">
+      <div class="ch" onclick="toggleCard(this)">
+        <div class="ct">🎁 ${b.name}</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;font-weight:700;color:var(--green)">${fmt(b.sellPrice)}</span><span class="ca">›</span></div>
+      </div>
+      <div class="cb">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+          <div style="background:var(--lighter);border-radius:10px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase">Cost</div><div style="font-size:13px;font-weight:800;color:var(--ink);margin-top:2px">${fmt(b.cost)}</div></div>
+          <div style="background:var(--lighter);border-radius:10px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase">Price</div><div style="font-size:13px;font-weight:800;color:var(--green);margin-top:2px">${fmt(b.sellPrice)}</div></div>
+          <div style="background:var(--lighter);border-radius:10px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase">Items</div><div style="font-size:13px;font-weight:800;color:var(--ink);margin-top:2px">${(b.items||[]).length}</div></div>
+        </div>
+        ${(b.items||[]).map(it=>`<div class="lr">
+          <div class="lav">${it.photo?`<img src="${it.photo}">`:it.colorHex?`<div style="width:100%;height:100%;background:${it.colorHex}"></div>`:'🎁'}</div>
+          <div class="lif"><div class="ln">${it.name}</div>${it.variantLabel?`<div class="lsub">${it.variantLabel}</div>`:''}</div>
+          <div class="lval"><div class="lv">×${it.qty}</div></div>
+        </div>`).join('')}
+        ${b.waMessage?`<div style="background:var(--lighter);border-radius:10px;padding:10px;margin-top:8px;font-size:11px;color:var(--muted);line-height:1.5"><div style="font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:4px">💬 WA Message</div>${b.waMessage}</div>`:''}
+      </div>
+    </div>`).join(''):'<div class="empty">No bundles created yet 🎁</div>';
+}
+
+// COLLECTIONS
+function renderCollections(){
+  if(!D)return;
+  const colls=D.collections||[];
+  document.getElementById('coll-body').innerHTML=colls.length?colls.map(c=>`
+    <div class="card">
+      <div class="ch" onclick="toggleCard(this)">
+        <div class="ct">${c.emoji||'🗂️'} ${c.name}</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)">${(c.productIds||[]).length} products</span><span class="ca">›</span></div>
+      </div>
+      <div class="cb">
+        ${c.description?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px">${c.description}</div>`:''}
+        <div class="pg" style="grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0">${(c.products||[]).map(p=>`<div style="background:var(--lighter);border-radius:10px;overflow:hidden;text-align:center">
+          <div style="height:60px;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden">${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover">`:p.emoji||'📦'}</div>
+          <div style="padding:5px;font-size:9px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+          <div style="padding:0 5px 5px;font-size:9px;color:var(--muted)">${p.totalStock||0}u</div>
+        </div>`).join('')}</div>
+      </div>
+    </div>`).join(''):'<div class="empty">No collections yet 🗂️</div>';
+}
+
+// LOSSES
+function renderLosses(){
+  if(!D)return;
+  const losses=D.losses||[];
+  const total=losses.reduce((s,l)=>s+(l.amount||0),0);
+  document.getElementById('losses-body').innerHTML=`
+    <div class="kr"><div class="kpi"><div class="kv r">${fmt(total)}</div><div class="kl">Total Losses</div></div><div class="kpi"><div class="kv">${losses.length}</div><div class="kl">Entries</div></div></div>
+    ${losses.length?`<div class="card"><div class="ch" onclick="toggleCard(this)"><div class="ct">📉 All Losses</div><span class="ca open">›</span></div>
+    <div class="cb open">${losses.map(l=>`<div class="lr">
+      <div class="lav" style="background:var(--red-s);color:var(--red)">📉</div>
+      <div class="lif"><div class="ln">${l.name}</div><div class="lsub">${l.category||''} · ${l.date||''} ${l.store?'· '+l.store:''}</div></div>
+      <div class="lval"><div class="lv r">${fmt(l.amount)}</div>${l.qty?`<div style="font-size:9px;color:var(--muted)">×${l.qty}</div>`:''}</div>
+    </div>`).join('')}</div></div>`:'<div class="empty">No losses recorded 🎉</div>'}`;
+}
+
+// INVENTORY COUNTS
+function renderInventory(){
+  if(!D)return;
+  const counts=D.inventoryCounts||[];
+  _selectedCounts=[];
+  document.getElementById('inv-count-body').innerHTML=`
+    <div style="background:var(--lighter);border-radius:12px;padding:12px 14px;margin:0 14px 12px;font-size:12px;color:var(--muted)">
+      💡 Tap to view a count · Select 2 counts and tap <strong>Compare</strong>
+    </div>
+    <div id="count-compare-bar" style="display:none;margin:0 14px 10px;background:var(--navy);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;font-weight:700;color:white" id="count-sel-txt">0 selected</span>
+      <button onclick="compareSelectedCounts()" style="background:var(--gold2);color:var(--navy);border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Compare ›</button>
+    </div>
+    ${counts.length?counts.map(h=>`
+      <div class="card" id="count-card-${h.id}" onclick="selectCount('${h.id}')" style="cursor:pointer;transition:all 0.2s">
+        <div style="padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div><div style="font-size:14px;font-weight:700;color:var(--ink)">${h.label||h.date}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">📅 ${h.date||''} · ${h.store||'all'} · ${(h.items||[]).length} products</div></div>
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid var(--lighter);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:10px" id="count-check-${h.id}"></div>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">Total counted: <strong style="color:var(--ink)">${h.totalCounted||0} units</strong></div>
+        </div>
+      </div>`).join(''):'<div class="empty">No inventory counts yet</div>'}`;
+  // hide compare bar initially
+  const bar=document.getElementById('count-compare-bar');if(bar)bar.style.display='none';
+}
+
+let _selectedCountIds=[];
+function selectCount(id){
+  const idx=_selectedCountIds.indexOf(id);
+  if(idx>-1){
+    _selectedCountIds.splice(idx,1);
+    const card=document.getElementById('count-card-'+id);
+    const chk=document.getElementById('count-check-'+id);
+    if(card)card.style.borderColor='var(--lighter)';
+    if(chk)chk.innerHTML='';
+  } else if(_selectedCountIds.length<2){
+    _selectedCountIds.push(id);
+    const card=document.getElementById('count-card-'+id);
+    const chk=document.getElementById('count-check-'+id);
+    if(card)card.style.borderColor='var(--gold2)';
+    if(chk)chk.innerHTML='<span style="color:var(--gold)">✓</span>';
+    if(_selectedCountIds.length===1){
+      // show detail
+      const h=(D.inventoryCounts||[]).find(x=>x.id===id);
+      if(h)openCountDetail(h);
+    }
+  }
+  const bar=document.getElementById('count-compare-bar');
+  const txt=document.getElementById('count-sel-txt');
+  if(bar)bar.style.display=_selectedCountIds.length>0?'flex':'none';
+  if(txt)txt.textContent=_selectedCountIds.length+' selected';
+}
+
+function openCountDetail(h){
+  document.getElementById('modal-count-body').innerHTML=`
+    <div style="margin-bottom:18px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:4px">${h.label||h.date}</div>
+      <div style="font-size:12px;color:var(--muted)">📅 ${h.date||''} · ${h.store||'all'} · ${(h.items||[]).length} products counted</div>
+    </div>
+    <div class="kr3" style="margin:0 0 14px">
+      <div class="kpi" style="margin:0"><div class="kv">${(h.items||[]).length}</div><div class="kl">Products</div></div>
+      <div class="kpi" style="margin:0"><div class="kv">${h.totalCounted||0}</div><div class="kl">Total Units</div></div>
+      <div class="kpi" style="margin:0"><div class="kv r">${(h.items||[]).filter(i=>i.diff<0).length}</div><div class="kl">Shortages</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">All Products</div>
+    ${(h.items||[]).map(it=>`<div class="lr">
+      <div class="lif"><div class="ln">${it.productName||'Product'}</div><div class="lsub">${it.variantLabel||''}</div></div>
+      <div class="lval"><div class="lv">${it.counted}</div>${it.expected?`<div style="font-size:9px;font-weight:700;color:${it.diff<0?'var(--red)':it.diff>0?'var(--green)':'var(--muted)'}">Expected:${it.expected} (${it.diff>0?'+':''}${it.diff})</div>`:''}</div>
+    </div>`).join('')||'<div class="empty">No items in this count</div>'}`;
+  openM('modal-count');
+}
+
+function compareSelectedCounts(){
+  if(_selectedCountIds.length<2){return;}
+  const c1=(D.inventoryCounts||[]).find(x=>x.id===_selectedCountIds[0]);
+  const c2=(D.inventoryCounts||[]).find(x=>x.id===_selectedCountIds[1]);
+  if(!c1||!c2)return;
+  // Build comparison map
+  const map={};
+  (c1.items||[]).forEach(it=>{const k=(it.productId||it.productName)+(it.variantId||'');map[k]={name:it.productName,variant:it.variantLabel,a:it.counted,b:0};});
+  (c2.items||[]).forEach(it=>{const k=(it.productId||it.productName)+(it.variantId||'');if(map[k])map[k].b=it.counted;else map[k]={name:it.productName,variant:it.variantLabel,a:0,b:it.counted};});
+  const rows=Object.values(map).sort((a,b)=>(a.b-a.a)-(b.b-b.a));
+  document.getElementById('modal-compare-body').innerHTML=`
+    <div style="margin-bottom:16px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px">Count Comparison</div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:var(--lighter);border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:3px">COUNT A</div><div style="font-size:12px;font-weight:700;color:var(--ink)">${c1.label||c1.date}</div></div>
+        <div style="display:flex;align-items:center;justify-content:center;font-size:18px">⇆</div>
+        <div style="background:var(--lighter);border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:3px">COUNT B</div><div style="font-size:12px;font-weight:700;color:var(--ink)">${c2.label||c2.date}</div></div>
+      </div>
+    </div>
+    <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:grid;grid-template-columns:1fr auto 1fr;gap:4px;margin-bottom:6px;padding:0 4px"><span>A</span><span style="text-align:center">Diff</span><span style="text-align:right">B</span></div>
+    ${rows.map(r=>{const diff=r.b-r.a;return`<div class="compare-row">
+      <div><div style="font-size:12px;font-weight:600;color:var(--ink)">${r.name}</div>${r.variant?`<div style="font-size:10px;color:var(--muted)">${r.variant}</div>`:''}</div>
+      <div class="cmp-diff ${diff>0?'pos':diff<0?'neg':'zero'}">${diff>0?'+':''}${diff||'='}</div>
+      <div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--ink)">${r.b}</div><div style="font-size:10px;color:var(--muted)">was ${r.a}</div></div>
+    </div>`;}).join('')}`;
+  openM('modal-compare');
+}
+
+// MONTHLY REPORT
+function renderReport(){
+  if(!D)return;
+  const mr=D.monthlyReport||{};
+  const f=D.finance||{};
+  document.getElementById('report-sub').textContent=mr.month||'This month';
+  const score=mr.healthScore||0;
+  const scoreColor=score>=80?'var(--green)':score>=65?'var(--gold)':score>=50?'var(--amber)':'var(--red)';
+  document.getElementById('report-body').innerHTML=`
+    <div class="report-card" style="margin:0 14px 12px">
+      <div class="report-orb"></div>
+      <div class="report-month">Monthly Business Report</div>
+      <div class="report-title">${new Date(mr.month+'-01').toLocaleDateString('en',{month:'long',year:'numeric'})}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px"><div style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:3px">Revenue</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#4ade80">${fmt(mr.revenue)}</div></div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px"><div style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:3px">Profit</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:${(mr.profit||0)>=0?'#4ade80':'#fca5a5'}">${fmt(mr.profit)}</div></div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px"><div style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:3px">Expenses</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fca5a5">${fmt(mr.expenses)}</div></div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:10px"><div style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;font-weight:700;letter-spacing:1px;margin-bottom:3px">Losses</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fca5a5">${fmt(mr.losses)}</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch" onclick="toggleCard(this)"><div class="ct">🏆 Business Health</div><span class="ca open">›</span></div>
+      <div class="cb open">
+        <div style="text-align:center;padding:10px 0">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:${scoreColor};line-height:1">${score}</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px">out of 100</div>
+          <div style="font-size:16px;font-weight:700;color:${scoreColor}">${mr.healthLabel||'—'}</div>
+        </div>
+        <div class="prog" style="margin-bottom:12px"><div class="prog-f" style="width:${score}%;background:${score>=80?'linear-gradient(90deg,var(--green),#4ade80)':score>=65?'linear-gradient(90deg,var(--gold),var(--gold2))':score>=50?'linear-gradient(90deg,var(--amber),#fbbf24)':'linear-gradient(90deg,var(--red),#f87171)'}"></div></div>
+        <div style="font-size:10px;color:var(--muted);text-align:center">Based on profit margin · debt ratio · capital recovery</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch" onclick="toggleCard(this)"><div class="ct">📊 Month Summary</div><span class="ca open">›</span></div>
+      <div class="cb open">
+        <div class="lr"><div class="lif"><div class="ln">Paid Invoices</div></div><div class="lv g">${mr.paidInvoices||0}</div></div>
+        <div class="lr"><div class="lif"><div class="ln">Unpaid Invoices</div></div><div class="lv r">${mr.unpaidInvoices||0}</div></div>
+        <div class="lr"><div class="lif"><div class="ln">New Customers</div></div><div class="lv">${mr.newCustomers||0}</div></div>
+        <div class="lr"><div class="lif"><div class="ln">Ad Spend</div></div><div class="lv r">${fmt(mr.adSpend)}</div></div>
+        <div class="lr"><div class="lif"><div class="ln">Ad Revenue</div></div><div class="lv g">${fmt(mr.adRevenue)}</div></div>
+        <div class="lr"><div class="lif"><div class="ln">Total Debt Outstanding</div></div><div class="lv r">${fmt(f.totalDebt)}</div></div>
+      </div>
+    </div>`;
+}
+
+// DETAIL MODALS
+function openInvDetail(id){
+  if(!D)return;
+  const i=(D.invoices||[]).find(x=>x.id===id)||(D.floraOrders||[]).find(x=>x.id===id);
+  if(!i)return;
+  document.getElementById('modal-inv-body').innerHTML=`
+    <div style="margin-bottom:18px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--ink);margin-bottom:4px">${i.num||i.id}</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="b ${stC[i.status]||'bm'}">${i.status}</span>
+        <span style="font-size:11px;color:var(--muted)">${i.date||''} · ${i.store||'ra'}</span>
+      </div>
+    </div>
+    <div class="kr3" style="margin:0 0 16px">
+      <div class="kpi" style="margin:0"><div class="kv">${fmt(i.total)}</div><div class="kl">Total</div></div>
+      <div class="kpi" style="margin:0"><div class="kv ${(i.paidAmt||0)>0?'g':'r'}">${fmt(i.paidAmt||0)}</div><div class="kl">Paid</div></div>
+      <div class="kpi" style="margin:0"><div class="kv r">${fmt((i.total||0)-(i.paidAmt||0))}</div><div class="kl">Remaining</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Customer</div>
+    <div class="lr" style="margin-bottom:14px">
+      <div class="lav">${i.customer?.charAt(0)?.toUpperCase()||'?'}</div>
+      <div class="lif"><div class="ln">${i.customer||'Unknown'}</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Items (${(i.items||[]).length})</div>
+    ${(i.items||[]).map(it=>`<div class="lr">
+      <div class="lif"><div class="ln">${it.name||'Item'}</div><div class="lsub">${it.variantLabel||''} · ×${it.qty||1}</div></div>
+      <div class="lval"><div class="lv">${fmt(it.total||(it.price*(it.qty||1)))}</div><div style="font-size:10px;color:var(--muted)">$${it.price||0}/pc</div></div>
+    </div>`).join('')||'<div class="empty">No item details</div>'}
+    ${i.notes?`<div style="background:var(--lighter);border-radius:10px;padding:10px;margin-top:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Notes</div><div style="font-size:12px;color:var(--ink)">${i.notes}</div></div>`:''}`;
+  openM('modal-inv');
+}
+
+function openCustDetail(id){
+  if(!D)return;
+  const c=(D.customers||[]).find(x=>x.id===id);if(!c)return;
+  const custInvs=(D.invoices||[]).filter(i=>(i.customer||'').toLowerCase()===(c.name||'').toLowerCase());
+  const totalSpent=custInvs.filter(i=>i.status==='paid').reduce((s,i)=>s+(i.total||0),0);
+  const w=wa(c.phone);
+  const ageHtml=c.debtDays>90?`<span class="age-90">90+ days overdue!</span>`:c.debtDays>60?`<span class="age-60">60+ days</span>`:c.debtDays>30?`<span class="age-30">30+ days</span>`:'';
+  document.getElementById('modal-cust-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+      <div style="width:54px;height:54px;border-radius:16px;background:${c.vip?'linear-gradient(135deg,#fef3c7,#fde68a)':'var(--lighter)'};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:${c.vip?'#b45309':'var(--navy)'};flex-shrink:0">
+        ${c.vip?'⭐':c.name?.charAt(0)?.toUpperCase()||'?'}
+      </div>
+      <div style="flex:1">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink)">${c.name} ${c.fromShop?'🛍️':''}</div>
+        <div style="font-size:11px;color:var(--muted)">${c.phone||'No phone'} ${c.city?'· 📍'+c.city:''}</div>
+        ${c.vip?'<span class="b ba" style="margin-top:4px;display:inline-block">⭐ VIP</span>':''}
+      </div>
+    </div>
+    ${w?`<button onclick="window.open('https://wa.me/961${w}','_blank')" style="width:100%;background:#25d366;color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px">💬 Message on WhatsApp</button>`:''}
+    <div class="kr3" style="margin:0 0 14px">
+      <div class="kpi" style="margin:0"><div class="kv g">${fmt(totalSpent)}</div><div class="kl">Total Spent</div></div>
+      <div class="kpi" style="margin:0"><div class="kv ${c.debt>0?'r':'g'}">${fmt(c.debt)}</div><div class="kl">Owes</div></div>
+      <div class="kpi" style="margin:0"><div class="kv">${custInvs.length}</div><div class="kl">Invoices</div></div>
+    </div>
+    ${c.debt>0&&ageHtml?`<div style="background:var(--red-s);border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--red)">⏰ Debt outstanding: ${ageHtml}</div>`:''}
+    ${c.notes?`<div style="background:var(--lighter);border-radius:10px;padding:10px;margin-bottom:14px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px">📝 Notes</div><div style="font-size:12px;color:var(--ink)">${c.notes}</div></div>`:''}
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Invoice History</div>
+    ${custInvs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(i=>`
+      <div class="lr tap" onclick="openInvDetail('${i.id}')">
+        <div class="lif"><div class="ln">${i.num||i.id}</div><div class="lsub">${i.date||''} · ${i.items?.length||0} items</div></div>
+        <div class="lval"><div class="lv">${fmt(i.total)}</div><span class="b ${stC[i.status]||'bm'}" style="display:block;margin-top:2px;text-align:right">${i.status}</span></div>
+      </div>`).join('')||'<div class="empty">No invoices yet</div>'}`;
+  openM('modal-cust');
+}
+
+function openProdDetail(id){
+  if(!D)return;
+  const p=(D.products||[]).find(x=>x.id===id);if(!p)return;
+  const out=(p.totalStock||0)===0,low=(p.totalStock||0)<5&&!out;
+  document.getElementById('modal-prod-body').innerHTML=`
+    <div style="display:flex;gap:14px;margin-bottom:18px">
+      <div style="width:70px;height:70px;border-radius:16px;overflow:hidden;background:var(--lighter);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:32px">
+        ${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover">`:(p.emoji||'📦')}
+      </div>
+      <div style="flex:1">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink)">${p.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${p.category||''} · ${p.store==='ra'?'🏪 RA':p.store==='flora'?'🌸 Flora':'Both'}</div>
+        ${out?'<span class="b br">🚫 Out of Stock</span>':low?'<span class="b ba">⚠️ Low Stock</span>':'<span class="b bg">✅ In Stock</span>'}
+      </div>
+    </div>
+    <div class="kr3" style="margin:0 0 16px">
+      <div class="kpi" style="margin:0"><div class="kv ${out?'r':low?'a':'g'}">${p.totalStock||0}</div><div class="kl">Total Units</div></div>
+      <div class="kpi" style="margin:0"><div class="kv gold">${p.priceRAPiece?'$'+p.priceRAPiece:'—'}</div><div class="kl">RA Price</div></div>
+      <div class="kpi" style="margin:0"><div class="kv" style="color:var(--rose)">${p.priceFlora?'$'+p.priceFlora:'—'}</div><div class="kl">Flora Price</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Variants (${(p.variants||[]).length})</div>
+    ${(p.variants||[]).map(v=>{
+      const qty=(v.ra||0)+(v.flora||0);
+      const hd=v.colorHex&&!['#ede6e8','#f4a0b0','','#ffffff'].includes(v.colorHex);
+      return`<div class="lr">
+        <div class="lav" style="${hd?'background:'+v.colorHex+';border:2px solid rgba(0,0,0,0.08)':''}">
+          ${v.photo?`<img src="${v.photo}" style="width:100%;height:100%;object-fit:cover">`:hd?'':(p.emoji||'📦')}
+        </div>
+        <div class="lif"><div class="ln">${v.label||v.name||'Standard'}</div>${hd?`<div class="lsub">${v.colorHex}</div>`:''}</div>
+        <div class="lval">
+          <div class="lv ${qty===0?'r':qty<3?'a':'g'}">${qty}</div>
+          <div style="font-size:9px;color:var(--muted)">${v.ra?v.ra+'RA':''} ${v.flora?v.flora+'FL':''}</div>
+        </div>
+      </div>`;
+    }).join('')||'<div class="empty">No variants</div>'}`;
+  openM('modal-prod');
+}
+
+function openShipDetail(id){
+  if(!D)return;
+  const s=(D.shipments||[]).find(x=>x.id===id);if(!s)return;
+  const pct=s.cost>0?Math.min(100,Math.round(((s.manualCollected||0)/s.cost)*100)):0;
+  document.getElementById('modal-ship-body').innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--ink)">${s.name}</div>${s.supplier?`<div style="font-size:11px;color:var(--muted);margin-top:2px">🏭 ${s.supplier}</div>`:''}</div>
+      <span class="b ${stC[s.status]||'bm'}">${stL[s.status]||s.status}</span>
+    </div>
+    <div class="timeline" style="margin-bottom:16px">
+      ${['ordered','onway','arrived'].map((step,i)=>{
+        const done=s.status==='arrived'||(s.status==='onway'&&i<=1)||(s.status==='ordered'&&i===0);
+        const active=s.status===step;
+        const icons={ordered:'📋',onway:'🚢',arrived:'✅'};
+        const labels={ordered:'Ordered',onway:'On Way',arrived:'Arrived'};
+        const dates={ordered:s.orderDate,onway:'',arrived:s.arrivedDate};
+        return`<div class="tl-step">
+          ${i>0?`<div class="tl-line ${done?'done':''}"></div>`:''}
+          <div class="tl-dot ${active?'active':done?'done':'pending'}">${icons[step]}</div>
+          <div class="tl-label">${labels[step]}</div>
+          ${dates[step]?`<div class="tl-date">${dates[step]}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="kr3" style="margin:0 0 14px">
+      <div class="kpi" style="margin:0"><div class="kv gold">${fmt(s.cost)}</div><div class="kl">Cost</div></div>
+      <div class="kpi" style="margin:0"><div class="kv">${(s.products||[]).length}</div><div class="kl">Products</div></div>
+      <div class="kpi" style="margin:0"><div class="kv ${pct>=100?'g':pct>0?'a':'r'}">${pct}%</div><div class="kl">Recovered</div></div>
+    </div>
+    ${s.manualCollected>0?`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px"><span>Recovered: ${fmt(s.manualCollected)}</span><span>Cost: ${fmt(s.cost)}</span></div><div class="prog"><div class="prog-f" style="width:${pct}%"></div></div></div>`:''}
+    ${s.notes?`<div style="background:var(--lighter);border-radius:10px;padding:10px;margin-bottom:12px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Notes</div><div style="font-size:12px;color:var(--ink)">${s.notes}</div></div>`:''}
+    ${(s.products||[]).length?`
+    <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Products in Shipment</div>
+    ${(s.products||[]).map(p=>`<div class="lr">
+      <div class="lav">${p.photo?`<img src="${p.photo}">`:(p.emoji||'📦')}</div>
+      <div class="lif"><div class="ln">${p.name}</div></div>
+      <div class="lval"><div class="lv">${p.totalStock||0} units</div></div>
+    </div>`).join('')}`:''}`;
+  openM('modal-ship');
+}
+
+// AUTO REFRESH
+setInterval(loadData,5*60*1000);
+loadData();
+</script>
+</body>
+</html>
