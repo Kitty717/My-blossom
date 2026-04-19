@@ -59,16 +59,17 @@ function openShipmentDetail(sid){
       <button onclick="markRefundReceived('${s.id}')" style="width:100%;margin-top:8px;padding:8px;background:var(--green);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">✅ Mark Refund Received</button>
     </div>`:''}
     `;
-  // Check if shipment needs manual recovery button
   const linkedProds = products.filter(p=>p.shipmentId===sid);
   const linkedProdIds = new Set(linkedProds.map(p=>p.id));
-  const hasLinkedInvoices = invoices.some(inv=>inv.status!=='cancelled'&&(inv.items||[]).some(it=>linkedProdIds.has(it.productId)));
-  const showRecoveryBtn = s.status==='arrived' && !hasLinkedInvoices;
+  const linkedRevenue = invoices.filter(inv=>inv.status!=='cancelled').reduce((sum,inv)=>{
+    const rel=(inv.items||[]).filter(it=>linkedProdIds.has(it.productId));
+    return sum+rel.reduce((s,it)=>s+(it.total||(it.qty||1)*(it.price||0)),0);
+  },0);
 
   document.getElementById('sd-foot').innerHTML = `
     <button class="btn btn-p" onclick="closeModal('m-ship-detail');goToShipmentProducts('${sid}')">📦 View Products</button>
     ${s.status!=='arrived'?`<button class="btn btn-green" onclick="markShipArrived('${sid}')">✅ Mark Arrived</button>`:''}
-    ${showRecoveryBtn||s.manualCollected>0?`<button class="btn btn-g" onclick="openManualRecovery('${sid}')" style="background:${s.manualCollected>0?'var(--green-soft)':'var(--grey)'};color:${s.manualCollected>0?'var(--green)':'var(--ink)'}">💰 ${s.manualCollected>0?'Recovered: $'+s.manualCollected.toLocaleString():'Mark Capital Recovered'}</button>`:''}
+    ${s.status==='arrived'?`<button class="btn btn-g" onclick="openManualRecovery('${sid}')" style="background:${(s.manualCollected||0)>0||linkedRevenue>0?'var(--green-soft)':'var(--grey)'};color:${(s.manualCollected||0)>0||linkedRevenue>0?'var(--green)':'var(--ink)'}">💰 ${(s.manualCollected||0)>0?'Recovered: $'+s.manualCollected.toLocaleString():linkedRevenue>0?'Collected: $'+linkedRevenue.toFixed(0):'Mark Capital Recovered'}</button>`:''}
     <button class="btn btn-g" onclick="closeModal('m-ship-detail')">Close</button>`;
   showModal('m-ship-detail');
 }
