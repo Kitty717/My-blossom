@@ -66,10 +66,35 @@ function openShipmentDetail(sid){
     return sum+rel.reduce((s,it)=>s+(it.total||(it.qty||1)*(it.price||0)),0);
   },0);
 
+  const recoveryHtml = s.status==='arrived' ? `
+    <div onclick="openManualRecovery('${sid}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:${(s.manualCollected||0)>0||linkedRevenue>0?'var(--green-soft)':'var(--rose-pale)'};border-radius:12px;margin-bottom:10px;cursor:pointer;border:1.5px solid ${(s.manualCollected||0)>0||linkedRevenue>0?'rgba(42,138,86,0.2)':'rgba(192,83,106,0.15)'}">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:${(s.manualCollected||0)>0||linkedRevenue>0?'var(--green)':'var(--rose)'}">💰 Capital Recovery</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">${(s.manualCollected||0)>0?'Manually set · Tap to update':linkedRevenue>0?'From linked invoices':'Tap to enter collected amount'}</div>
+      </div>
+      <div style="font-size:16px;font-weight:800;color:${(s.manualCollected||0)>0||linkedRevenue>0?'var(--green)':'var(--muted)'}">$${((s.manualCollected||0)||linkedRevenue).toFixed(0)}</div>
+    </div>` : '';
+
+  document.getElementById('sd-body').innerHTML = `
+    <div style="margin-bottom:12px"><span class="b ${STATUS_CLS[s.status]}">${STATUS_LABEL[s.status]}</span></div>
+    <div class="card" style="margin-bottom:12px">
+      ${s.supplier?`<div class="lr"><div class="lif"><div class="ln">🏭 ${s.supplier}</div></div></div>`:''}
+      ${s.num?`<div class="lr"><div class="lif"><div class="ln">📋 ${s.num}</div></div></div>`:''}
+      <div class="lr"><div class="lif"><div class="ln">📅 ETA: ${eta}</div></div></div>
+      ${s.cost?`<div class="lr"><div class="lif"><div class="ln">💵 $${s.cost.toLocaleString()}</div></div></div>`:''}
+      <div class="lr"><div class="lif"><div class="ln">📦 ${prodCount} product${prodCount!==1?'s':''} linked</div></div></div>
+    </div>
+    ${recoveryHtml}
+    ${s.shortLoss>0?`<div style="background:var(--red-soft);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:var(--red);font-weight:600">💸 Loss from shortage: $${s.shortLoss.toFixed(2)}</div>`:''}
+    ${(s.pendingRefunds||[]).length?`<div style="background:var(--amber-soft);border-radius:12px;padding:10px 12px;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px">🔄 Pending Refunds from Supplier</div>
+      ${s.pendingRefunds.map(r=>{const od=r.deadline&&r.deadline<new Date().toISOString().split('T')[0];return `<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06)"><div><div style="font-weight:600">${r.name} × ${r.qty} — <span style="color:var(--green)">$${r.cost.toFixed(2)}</span></div>${r.deadline?`<div style="font-size:10px;color:${od?'var(--red)':'var(--muted)'}">Due: ${r.deadline}${od?' ⚠️ OVERDUE':''}</div>`:''}</div><button onclick="convertRefundToLoss('${s.id}','${r.id}')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;margin-left:8px">💸 Loss</button></div>`;}).join('')}
+      <button onclick="markRefundReceived('${s.id}')" style="width:100%;margin-top:8px;padding:8px;background:var(--green);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">✅ Mark Refund Received</button>
+    </div>`:''}
+    `;
   document.getElementById('sd-foot').innerHTML = `
     <button class="btn btn-p" onclick="closeModal('m-ship-detail');goToShipmentProducts('${sid}')">📦 View Products</button>
     ${s.status!=='arrived'?`<button class="btn btn-green" onclick="markShipArrived('${sid}')">✅ Mark Arrived</button>`:''}
-    ${s.status==='arrived'?`<button class="btn btn-g" onclick="openManualRecovery('${sid}')" style="background:${(s.manualCollected||0)>0||linkedRevenue>0?'var(--green-soft)':'var(--grey)'};color:${(s.manualCollected||0)>0||linkedRevenue>0?'var(--green)':'var(--ink)'}">💰 ${(s.manualCollected||0)>0?'Recovered: $'+s.manualCollected.toLocaleString():linkedRevenue>0?'Collected: $'+linkedRevenue.toFixed(0):'Mark Capital Recovered'}</button>`:''}
     <button class="btn btn-g" onclick="closeModal('m-ship-detail')">Close</button>`;
   showModal('m-ship-detail');
 }
